@@ -45,7 +45,7 @@ body > header > button{
 	padding: 1.5mm;
 }
 
-body > header > button:active{
+body > header > button:active, body > header > button.active{
 	background: #2D2D29;
 	color: #3CA2A2;
 }
@@ -59,19 +59,34 @@ body > header > button:before{
 }
 
 #menu{
-	/*display: none;
+	display: none;
 }
 
-#menu.visible{*/
+#menu.visible{
 	display: block;
 	position: fixed;
 	top: 1cm;
 	right: 0;
 	bottom: 0;
 	width: 80%;
-	background: rgba(60, 162, 162, 0.95);/*#3CA2A2*/
+	color: #3CA2A2;
+	background: rgba(45, 45, 41, 0.95);
 	box-shadow: 0 1cm 1cm #000;
 	overflow: auto;
+}
+
+#menu > ul > li{
+	display: block;
+	padding: 0 2mm;
+}
+
+#menu > ul > li:hover{
+	background: #3CA2A2;
+	color: #2D2D29;
+}
+
+#menu > ul > li:not(:last-child){
+	border-bottom: 2px solid;
 }
 
 body > article{

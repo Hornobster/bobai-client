@@ -4,6 +4,8 @@ var API_URL = "data:text/json,";//"https://example.com/api/";
 var globalXHR = new XMLHttpRequest();
 var SESSION_ID;
 
+var $;
+
 function auth(email, password, callback){
 	function onLoadend(e){
 		var xhr = e.target;
@@ -45,8 +47,13 @@ function loginFormSubmit(e){
 }
 
 function init(){
+	$ = document.getElementById.bind(document);
 	SESSION_ID = localStorage.SESSION_ID;
 	document.forms.login.addEventListener("submit", loginFormSubmit);
+	$("menu_button").addEventListener("click", function(e){
+		$("menu").classList.toggle("visible");
+		e.target.classList.toggle("active");
+	});
 }
 
 document.addEventListener("DOMContentLoaded", init);
