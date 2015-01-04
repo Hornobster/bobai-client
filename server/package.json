@@ -1,0 +1,23 @@
+{
+  "name": "server",
+  "version": "1.0.0",
+  "description": "",
+  "main": "app.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node app.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/Hornobster/lothar.git"
+  },
+  "author": "Carlo Vespa, Carlo Cannas, Elias Mahdavi",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/Hornobster/lothar/issues"
+  },
+  "homepage": "https://github.com/Hornobster/lothar",
+  "dependencies": {
+    "express": "^4.10.6"
+  }
+}
