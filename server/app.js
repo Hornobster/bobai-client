@@ -2,12 +2,10 @@
 
 var express = require('express');
 var bodyParser = require('body-parser');
+var mysql = require('mysql');
 var app = express();
 
-var mysql = require('db-mysql');
-
-
-app.use(bodyParser.json({strict: true}))
+app.use(bodyParser.json({strict: true}));
 
 app.post('/signup', function(req, res){
 	var user = req.body.username;
