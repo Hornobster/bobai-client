@@ -46,22 +46,19 @@ var registration = {
                     if (err.code === 'ER_DUP_ENTRY') { // username, email or phone number not available
                         // investigate
                         // TODO error checking
-                        connection.query('SELECT username FROM users WHERE username = ?', user.username, function(err, resUser) {
-                            connection.query('SELECT email FROM users WHERE email = ?', user.email, function(err, resEmail) {
-                                connection.query('SELECT phone FROM users WHERE phone = ?', user.phone, function(err, resPhone) {
-                                    var duplicates = {
-                                        username: resUser.length > 0,
-                                        email: resEmail.length > 0,
-                                        phone: resPhone.length > 0
-                                    };
 
-                                    res.status(400);
-                                    res.json({
-                                        status: 400,
-                                        message: 'Username, email or phone number already in use!',
-                                        duplicates: duplicates
-                                    });
-                                });
+                        connection.query('SELECT SUM(username = ?) AS u, SUM(email = ?) AS e, SUM(phone = ?) AS p FROM users', [user.username, user.email, user.phone], function(err, result) {
+                            var duplicates = {
+                                username: result[0].u > 0,
+                                email: result[0].e > 0,
+                                phone: result[0].p > 0
+                            };
+
+                            res.status(400);
+                            res.json({
+                                status: 400,
+                                message: 'Username, email or phone number already in use!',
+                                duplicates: duplicates
                             });
                         });
                     } else { // other error
