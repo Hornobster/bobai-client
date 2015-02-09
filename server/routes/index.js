@@ -7,9 +7,8 @@ var router = express.Router();
 
 var auth = require('./auth.js');
 var registration = require('./registration.js');
-//var proposals = require('./proposals.js');
+var proposals = require('./proposals.js');
 var ads = require('./ads.js');
-//var users = require('./users.js');
 
 /*
 routes that can be accessed by anyone
@@ -22,14 +21,14 @@ routes that can be accessed only by authenticated users
  */
 router.post('/logout', auth.logout);
 
-//router.get('/api/proposalsOf/:userid', proposals.getOwnedByUser);
-//router.get('/api/proposals/:adid', proposals.getByAdId);
+router.get('/api/proposalsOf/:userid', proposals.getByUserId);
+router.get('/api/proposals/:adid', proposals.getByAdId);
 //router.get('/api/adsNear/:userid', ads.getNearUser);
 router.get('/api/ads/:id', ads.getById);
-router.get('/api/adsOf/:userid', ads.getOwnedByUser);
+router.get('/api/adsOf/:userid', ads.getByUserId);
 
 router.post('/api/ads', ads.postAd);
-//router.post('/api/proposals', proposals.postProposal);
+router.post('/api/proposals', proposals.postProposal);
 
 /*
 routes that can be accessed only by authenticated and authorized users

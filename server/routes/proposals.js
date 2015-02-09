@@ -1,5 +1,5 @@
 /**
- * Created by carlovespa on 08/02/15.
+ * Created by carlovespa on 09/02/15.
  */
 
 var mysql = require('mysql');
@@ -8,9 +8,9 @@ var config = require('../config.js');
 // create a DB connection object (still not actually connected)
 var connection = mysql.createConnection(config.dbInfo);
 
-var ads = {
+var proposals = {
     getByUserId: function(req, res) {
-        connection.query('SELECT * FROM ads WHERE userid = ?', req.params.userid, function(err, result) {
+        connection.query('SELECT * FROM proposals WHERE userid = ?', req.params.userid, function(err, result) {
             if (err) {
                 res.status(500);
                 res.json({
@@ -25,8 +25,8 @@ var ads = {
         });
     },
 
-    getById: function(req, res) {
-        connection.query('SELECT * FROM ads WHERE id = ?', req.params.id, function(err, result) {
+    getByAdId: function(req, res) {
+        connection.query('SELECT * FROM proposals WHERE adid = ?', req.params.adid, function(err, result) {
             if (err) {
                 res.status(500);
                 res.json({
@@ -36,22 +36,17 @@ var ads = {
                 });
             } else {
                 res.status(200);
-                res.json(result[0]);
+                res.json(result);
             }
         });
     },
 
-    postAd: function(req, res) {
-        var title = req.body.title || '';
-        var description = req.body.description || '';
-        var category = req.body.category || '';
-        var radius = req.body.radius || '';
-        var lat = req.body.lat || '';
+    postProposal: function(req, res) {
+        var adId = req.body.adId || '';
         var lon = req.body.lon || '';
-        var duration = req.body.duration || '';
+        var lat = req.body.lat || '';
 
-        if (title === '' || description === '' || category === '' || radius === '' || lat === '' || lon === '' || duration === '' ||
-            title.length > config.adsInfo.titleMaxLength || description.length > config.adsInfo.descriptionMaxLength || duration > config.adsInfo.maxDuration) {
+        if (adId === '' || lon === '' || lat === '') {
             res.status(400);
             res.json({
                 status: 400,
@@ -60,21 +55,14 @@ var ads = {
             return;
         }
 
-        var date_expires = new Date();
-        date_expires.setUTCHours(date_expires.getUTCHours() + duration);
-
-        var ad = {
+        var proposal = {
             userid: req.loggedUserId,
-            title: title,
-            description: description,
-            category: category,
-            radius: radius,
+            adid: adId,
             lat: lat * config.geo.lonLatDBScale,
-            lon: lon * config.geo.lonLatDBScale,
-            date_expires: date_expires
+            lon: lon * config.geo.lonLatDBScale
         };
 
-        connection.query('INSERT INTO ads SET ?', ad, function(err, result){
+        connection.query('INSERT INTO proposals SET ?', proposal, function(err, result) {
             if (err) {
                 res.status(500);
                 res.json({
@@ -86,12 +74,12 @@ var ads = {
                 res.status(200);
                 res.json({
                     status: 200,
-                    message: config.statusMessages.adPostSuccess,
-                    adId: result.insertId
+                    message: config.statusMessages.proposalPostSuccess,
+                    proposalId: result.insertId
                 });
             }
         });
     }
 };
 
-module.exports = ads;
+module.exports = proposals;

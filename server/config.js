@@ -16,7 +16,9 @@ module.exports = {
     adsInfo: {
         titleMaxLength: 100,
         descriptionMaxLength: 250,
-        maxDuration: 48, // in hours
+        maxDuration: 48 // in hours
+    },
+    geo: {
         lonLatDBScale: 10000
     },
     serverInfo: {
@@ -33,6 +35,7 @@ module.exports = {
         internalError: 'Oops something went wrong!',
         dataInvalid: 'Invalid data',
         adPostSuccess: 'Ad created successfully!',
+        proposalPostSuccess: 'Proposal created successfully!',
         userSignupSuccess: 'User successfully registered',
         alreadyInUse: 'Username, email or phone number already in use!'
     }
