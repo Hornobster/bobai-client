@@ -16,7 +16,8 @@ module.exports = {
     adsInfo: {
         titleMaxLength: 100,
         descriptionMaxLength: 250,
-        maxDuration: 48 // in hours
+        maxDuration: 48, // in hours
+        lonLatDBScale: 10000
     },
     serverInfo: {
         defaultPort: 3000
