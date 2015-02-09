@@ -20,7 +20,7 @@ var registration = {
             res.status(400);
             res.json({
                 status: 400,
-                message: 'Invalid data'
+                message: config.statusMessages.dataInvalid
             });
             return;
         }
@@ -56,7 +56,7 @@ var registration = {
                             res.status(400);
                             res.json({
                                 status: 400,
-                                message: 'Username, email or phone number already in use!',
+                                message: config.statusMessages.alreadyInUse,
                                 duplicates: duplicates
                             });
                         });
@@ -64,7 +64,7 @@ var registration = {
                         res.status(500);
                         res.json({
                             status: 500,
-                            message: 'Oops something went wrong!',
+                            message: config.statusMessages.internalError,
                             error: err
                         });
                     }
@@ -72,7 +72,7 @@ var registration = {
                     res.status(200);
                     res.json({
                         status: 200,
-                        message: 'User successfully registered!'
+                        message: config.statusMessages.userSignupSuccess
                     });
                 }
             });
@@ -80,7 +80,7 @@ var registration = {
             res.status(400);
             res.json({
                 status: 400,
-                message: 'Invalid data'
+                message: config.statusMessages.dataInvalid
             });
         }
     }

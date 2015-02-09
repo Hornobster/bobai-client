@@ -9,6 +9,30 @@ module.exports = {
         password : '',
         database: 'lothar'
     },
-    tokenDuration: 7, //days
-    jwtSecret: 'come.dovrei.nascondere.sta.roba?'
+    tokenInfo: {
+        tokenDuration: 7, // in days
+        jwtSecret: 'come.dovrei.nascondere.sta.roba?'
+    },
+    adsInfo: {
+        titleMaxLength: 100,
+        descriptionMaxLength: 250,
+        maxDuration: 48 // in hours
+    },
+    serverInfo: {
+        defaultPort: 3000
+    },
+    statusMessages: {
+        tokenExpired: 'Token expired',
+        tokenInvalid: 'Invalid token',
+        tokenOrKeyInvalid: 'Invalid token or key',
+        unauthorized: 'Unauthorized access',
+        logoutSuccess: 'Logout successful',
+        logoutFail: 'Logout failed',
+        credentialsInvalid: 'Invalid credentials',
+        internalError: 'Oops something went wrong!',
+        dataInvalid: 'Invalid data',
+        adPostSuccess: 'Ad created successfully!',
+        userSignupSuccess: 'User successfully registered',
+        alreadyInUse: 'Username, email or phone number already in use!'
+    }
 };

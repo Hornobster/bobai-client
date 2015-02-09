@@ -13,7 +13,7 @@ module.exports = function(req, res, next) {
 
     if (token && key) {
         try {
-            var decoded = jwt.decode(token, config.jwtSecret);
+            var decoded = jwt.decode(token, config.tokenInfo.jwtSecret);
 
             if (decoded.exp <= Date.now()) { // token expired, update IMDB token table and send error
                 dbutils.destroyToken(token);
@@ -21,7 +21,7 @@ module.exports = function(req, res, next) {
                 res.status(400);
                 res.json({
                     status: 400,
-                    message: 'Token expired'
+                    message: config.statusMessages.tokenExpired
                 });
                 return;
             }
@@ -35,7 +35,7 @@ module.exports = function(req, res, next) {
                     res.status(401);
                     res.json({
                         status: 401,
-                        message: 'Invalid token'
+                        message: config.statusMessages.tokenInvalid
                     });
                 }
             });
@@ -43,14 +43,14 @@ module.exports = function(req, res, next) {
             res.status(401);
             res.json({
                 status: 401,
-                message: 'Invalid token'
+                message: config.statusMessages.tokenInvalid
             });
         }
     } else {
         res.status(401);
         res.json({
             status: 401,
-            message: 'Invalid token or key'
+            message: config.statusMessages.tokenOrKeyInvalid
         });
     }
 };

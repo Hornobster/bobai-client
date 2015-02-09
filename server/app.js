@@ -4,6 +4,7 @@
 var express = require('express');
 var bodyParser = require('body-parser');
 var dbutils = require('./utils/dbutils.js');
+var config = require('./config.js');
 
 var app = express();
 
@@ -28,7 +29,7 @@ app.all('/logout', [require('./middleware/validateRequest.js')]);
 app.use('/', require('./routes/index.js'));
 
 
-var server = app.listen(process.env.PORT || 3000, function(){
+var server = app.listen(process.env.PORT || config.serverInfo.defaultPort, function(){
     var host = server.address().address;
     var port = server.address().port;
 

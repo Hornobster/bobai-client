@@ -20,7 +20,7 @@ var auth = {
             res.status(403);
             res.json({
                 status: 403,
-                message: 'Unauthorized'
+                message: config.statusMessages.unauthorized
             });
             return;
         }
@@ -32,7 +32,7 @@ var auth = {
                 res.status(401);
                 res.json({
                     status: 401,
-                    message: 'Invalid credentials'
+                    message: config.statusMessages.credentialsInvalid
                 });
             } else { // if successful, save token to DB and send it
                 var token = genToken(dbUser);
@@ -53,13 +53,13 @@ var auth = {
             res.status(200);
             res.json({
                 status: 200,
-                message: 'Logout successful'
+                message: config.statusMessages.logoutSuccess
             });
         } else {
             res.status(400);
             res.json({
                 status: 400,
-                message: 'Logout failed'
+                message: config.statusMessages.logoutFail
             });
         }
     },
@@ -87,8 +87,8 @@ var auth = {
 
 // private methods
 function genToken(user) {
-    var expires = expiresIn(config.tokenDuration); // token duration
-    var token = jwt.encode({exp: expires, userid: user.id}, config.jwtSecret);
+    var expires = expiresIn(config.tokenInfo.tokenDuration); // token duration
+    var token = jwt.encode({exp: expires, userid: user.id}, config.tokenInfo.jwtSecret);
 
     return {
         token: token,
