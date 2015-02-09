@@ -27,8 +27,9 @@ module.exports = function(req, res, next) {
             }
 
             // check tokens DB
-            dbutils.isTokenValid(token, key, function(isValid) {
+            dbutils.isTokenValid(token, decoded.userid, function(isValid) {
                 if (isValid) {
+                    req.loggedUserId = decoded.userid;
                     next();
                 } else {
                     res.status(401);

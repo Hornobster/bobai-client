@@ -9,12 +9,12 @@ var imdb;
 var dbutils = {
     initializeDB: function() {
         imdb = new sqlite.Database(':memory:');
-        imdb.run('CREATE TABLE tokens (token VARCHAR(60) PRIMARY KEY NOT NULL, user VARCHAR(30) UNIQUE NOT NULL)');
+        imdb.run('CREATE TABLE tokens (token VARCHAR(60) PRIMARY KEY NOT NULL, userid INT UNSIGNED UNIQUE NOT NULL)');
     },
 
-    saveToken: function(token, user) {
+    saveToken: function(token, userid) {
         var stmt = imdb.prepare('REPLACE INTO tokens VALUES (?,?)'); // if user already has a valid token, create a new one
-        stmt.run(token, user);
+        stmt.run(token, userid);
         stmt.finalize();
     },
 
@@ -24,9 +24,9 @@ var dbutils = {
         stmt.finalize();
     },
 
-    isTokenValid: function(token, key, callback) {
-        var stmt = imdb.prepare('SELECT * FROM tokens WHERE token = (?) AND user = (?)');
-        stmt.all(token, key, function(err, rows) {
+    isTokenValid: function(token, userid, callback) {
+        var stmt = imdb.prepare('SELECT * FROM tokens WHERE token = (?) AND userid = (?)');
+        stmt.all(token, userid, function(err, rows) {
             if (rows.length > 0) {
                 callback(true);
             } else {

@@ -37,7 +37,7 @@ var auth = {
             } else { // if successful, save token to DB and send it
                 var token = genToken(dbUser);
 
-                dbutils.saveToken(token.token, dbUser.username);
+                dbutils.saveToken(token.token, dbUser.id);
 
                 res.json(token);
             }
@@ -72,6 +72,7 @@ var auth = {
                 var hash = result[0].password;
                 if (bcrypt.compareSync(password, hash)) { // passwords match
                     callback({
+                        id: result[0].id,
                         username: result[0].username,
                         email: result[0].email,
                         phone: result[0].phone
@@ -87,7 +88,7 @@ var auth = {
 // private methods
 function genToken(user) {
     var expires = expiresIn(config.tokenDuration); // token duration
-    var token = jwt.encode({exp: expires}, config.jwtSecret);
+    var token = jwt.encode({exp: expires, userid: user.id}, config.jwtSecret);
 
     return {
         token: token,

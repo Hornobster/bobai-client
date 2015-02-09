@@ -46,7 +46,6 @@ var registration = {
                     if (err.code === 'ER_DUP_ENTRY') { // username, email or phone number not available
                         // investigate
                         // TODO error checking
-
                         connection.query('SELECT SUM(username = ?) AS u, SUM(email = ?) AS e, SUM(phone = ?) AS p FROM users', [user.username, user.email, user.phone], function(err, result) {
                             var duplicates = {
                                 username: result[0].u > 0,
@@ -65,7 +64,7 @@ var registration = {
                         res.status(500);
                         res.json({
                             status: 500,
-                            message: 'Oops something wrong happened!',
+                            message: 'Oops something went wrong!',
                             error: err
                         });
                     }
