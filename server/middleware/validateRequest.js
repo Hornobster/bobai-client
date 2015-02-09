@@ -26,6 +26,15 @@ module.exports = function(req, res, next) {
                 return;
             }
 
+            if (decoded.userid != key) {
+                res.status(401);
+                res.json({
+                    status: 401,
+                    message: config.statusMessages.tokenInvalid
+                });
+                return;
+            }
+
             // check tokens DB
             dbutils.isTokenValid(token, decoded.userid, function(isValid) {
                 if (isValid) {
