@@ -41,6 +41,38 @@ var ads = {
         });
     },
 
+    getNearby: function(req, res) {
+        var lat = req.body.lat || '';
+        var lon = req.body.lon || '';
+        var limit = req.body.limit || '';
+
+        if (lat === '' || lon === '' || limit === '') {
+            res.status(400);
+            res.json({
+                status: 400,
+                message: config.statusMessages.dataInvalid
+            });
+            return;
+        }
+
+        lat *= config.geo.lonLatDBScale;
+        lon *= config.geo.lonLatDBScale;
+
+        connection.query('SELECT *, GCDist(?, ?, lat, lon) AS dist FROM ads HAVING dist < radius ORDER BY dist LIMIT ?', [lat, lon, limit], function(err, result) {
+            if (err) {
+                res.status(500);
+                res.json({
+                    status: 500,
+                    message: config.statusMessages.internalError,
+                    error: err
+                });
+            } else {
+                res.status(200);
+                res.json(result);
+            }
+        });
+    },
+
     postAd: function(req, res) {
         var title = req.body.title || '';
         var description = req.body.description || '';

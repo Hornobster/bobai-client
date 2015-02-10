@@ -23,11 +23,11 @@ router.post('/logout', auth.logout);
 
 router.get('/api/proposalsOf/:userid', proposals.getByUserId);
 router.get('/api/proposals/:adid', proposals.getByAdId);
-//router.get('/api/adsNear/:userid', ads.getNearUser);
 router.get('/api/ads/:id', ads.getById);
 router.get('/api/adsOf/:userid', ads.getByUserId);
 
 router.post('/api/ads', ads.postAd);
+router.post('/api/adsNearby', ads.getNearby);
 router.post('/api/proposals', proposals.postProposal);
 
 /*
