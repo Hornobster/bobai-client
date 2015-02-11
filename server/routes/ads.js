@@ -10,7 +10,15 @@ var connection = mysql.createConnection(config.dbInfo);
 
 var ads = {
     getByUserId: function(req, res) {
-        connection.query('SELECT * FROM ads WHERE userid = ?', req.params.userid, function(err, result) {
+        var query = 'SELECT * FROM ads WHERE userid = ?';
+        var queryParams = [req.params.userid];
+
+        if (req.query.category) {
+            query += ' AND category = ?';
+            queryParams.push(req.query.category);
+        }
+
+        connection.query(query, queryParams, function(err, result) {
             if (err) {
                 res.status(500);
                 res.json({
@@ -58,7 +66,15 @@ var ads = {
         lat *= config.geo.lonLatDBScale;
         lon *= config.geo.lonLatDBScale;
 
-        connection.query('SELECT *, GCDist(?, ?, lat, lon) AS dist FROM ads HAVING dist < radius ORDER BY dist LIMIT ?', [lat, lon, limit], function(err, result) {
+        var query = 'SELECT *, GCDist(?, ?, lat, lon) AS dist FROM ads HAVING dist < radius ORDER BY dist LIMIT ?';
+        var queryParams = [lat, lon, limit];
+
+        if (req.query.category) {
+            query = 'SELECT *, GCDist(?, ?, lat, lon) AS dist FROM ads WHERE category = ? HAVING dist < radius ORDER BY dist LIMIT ?';
+            queryParams = [lat, lon, req.query.category, limit];
+        }
+
+        connection.query(query, queryParams, function(err, result) {
             if (err) {
                 res.status(500);
                 res.json({
