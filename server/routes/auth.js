@@ -17,6 +17,7 @@ var auth = {
         var password = req.body.password || '';
 
         if (username === '' || password === '') {
+
             res.status(403);
             res.json({
                 status: 403,
@@ -36,15 +37,16 @@ var auth = {
                 });
             } else { // if successful, save token to DB and send it
                 var token = genToken(dbUser);
-
                 dbutils.saveToken(token.token, dbUser.id);
 
                 res.json(token);
+                console.log((new Date).toUTCString() + ' User ' + dbUser.username + ' just logged in.')
             }
         });
     },
 
     logout: function(req, res) {
+        var key = (req.body && req.body.xKey) || req.headers['x-key'];
         var token = (req.body && req.body.xAccessToken) || req.headers['x-access-token'];
 
         if (token) {
@@ -55,12 +57,16 @@ var auth = {
                 status: 200,
                 message: config.statusMessages.logoutSuccess
             });
+
+            console.log((new Date).toUTCString() + ' User ' + key + ' just logged out.')
         } else {
             res.status(400);
             res.json({
                 status: 400,
                 message: config.statusMessages.logoutFail
             });
+
+            console.log((new Date).toUTCString() + ' User ' + key + ' logout failed.')
         }
     },
 
@@ -91,6 +97,7 @@ function genToken(user) {
     var token = jwt.encode({exp: expires, userid: user.id}, config.tokenInfo.jwtSecret);
 
     return {
+        status: 200,
         token: token,
         expires: expires,
         user: user
