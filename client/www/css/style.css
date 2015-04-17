@@ -34,3 +34,17 @@
     -ms-flex-align: center;
     align-items: center;
 }
+
+input[type="password"], input[type="text"], input[type="email"], input[type="tel"], textarea {
+    position:relative;
+    top:-10000px;
+    -webkit-transform: translate3d(0, 10000px, 0);
+}
+
+.item.centered {
+    text-align: center;
+}
+
+ion-spinner {
+    display: inline-block;
+}

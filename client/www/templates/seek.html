@@ -1,0 +1,48 @@
+<ion-view view-title="What do you seek?">
+    <ion-content>
+        <form ng-submit="doSeek()" novalidate>
+            <div class="list">
+                <label class="item item-input item-floating-label">
+                    <span class="input-label">Title</span>
+                    <input type="text" placeholder="Title" ng-model="seekData.title" required>
+                </label>
+                <label class="item item-input item-floating-label">
+                    <span class="input-label">Description</span>
+                    <textarea placeholder="Description" ng-model="seekData.description" required></textarea>
+                </label>
+                <label class="item item-input item-select">
+                    <span class="input-label">Category</span>
+                    <select ng-model="seekData.category" required>
+                        <option value="1">Furniture</option>
+                        <option value="2" selected>Clothing</option>
+                        <option value="3">Video Games</option>
+                        <option value="4">Food</option>
+                        <option value="5">Beverages</option>
+                    </select>
+                </label>
+                <div class="item range range-positive">
+                    <i class="icon ion-android-wifi"></i>
+                    <input ng-model="seekData.radius" type="range" name="range" min="1" max="100" value="1">
+                    <span>{{seekData.radius / 2 || 1}} km</span>
+                </div>
+                <div class="item range range-positive">
+                    <i class="icon ion-clock"></i>
+                    <input ng-model="seekData.duration" type="range" name="range" min="1" max="12" value="1">
+                    <span>{{seekData.duration || 1}} h</span>
+                </div>
+                <label class="item">
+                    <button class="button button-block icon ion-location" type="button" ng-click="getGPS()"> Get GPS Location</button>
+                </label>
+                <label ng-show="spinning" class="item centered">
+                    <ion-spinner></ion-spinner>
+                </label>
+                <div ng-show="gpsFound" class="item item-image">
+                    <img ng-src="http://maps.googleapis.com/maps/api/staticmap?center={{seekData.lat}},{{seekData.lon}}&zoom=14&size=400x300&markers=color:red|{{seekData.lat}},{{seekData.lon}}">
+                </div>
+                <label class="item">
+                    <button class="button button-block button-positive" type="submit">Post</button>
+                </label>
+            </div>
+        </form>
+    </ion-content>
+</ion-view>

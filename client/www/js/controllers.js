@@ -72,13 +72,6 @@ angular.module('starter.controllers', [ ])
                     $scope.loggedUser.username = response.user.username;
 
                     $scope.closeLogin();
-
-                    $ionicHistory.nextViewOptions({
-                        disableAnimate: true,
-                        disableBack: true
-                    });
-
-                    $state.go('app.home');
                 } else {
                     $ionicPopup.alert({
                         title: 'Oops!',
@@ -193,7 +186,7 @@ angular.module('starter.controllers', [ ])
             $state.go('app.home');
 
             $scope.login();
-        }
+        };
 
         $scope.doSignup = function () {
             if ($scope.signupData.password !== $scope.signupData.repeat) {
@@ -224,7 +217,7 @@ angular.module('starter.controllers', [ ])
                 if (response.status === 200) {
                     $ionicPopup.alert({
                         title: 'Congratulations!',
-                        template: 'Welcome to Lothar Deal! You can now login.'
+                        template: 'Welcome to Bobai! You can now login.'
                     });
 
                     $ionicHistory.nextViewOptions({
@@ -267,8 +260,127 @@ angular.module('starter.controllers', [ ])
         }
     })
 
+    .controller('HomeCtrl', function($scope, $ionicHistory, $state) {
+        $scope.seek = function () {
+            $ionicHistory.nextViewOptions({
+                disableAnimate: true,
+                disableBack: true
+            });
+
+            $state.go('app.seek');
+        }
+    })
+
+    .controller('SeekCtrl', function($scope, $ionicPopup, $ionicHistory, $state, $http, $cordovaGeolocation, ConfigService) {
+        $scope.seekData = {};
+
+        $scope.gpsFound = false;
+        $scope.spinning = false;
+
+        $scope.getGPS = function () {
+            $scope.spinning = true;
+            $cordovaGeolocation.getCurrentPosition({enableHighAccuracy: true})
+                .then(
+                function (position) {
+                    $scope.seekData.lat = position.coords.latitude;
+                    $scope.seekData.lon = position.coords.longitude;
+                    $scope.gpsFound = true;
+                    $scope.spinning = false;
+                },
+                function () {
+                    $scope.gpsFound = false;
+                    $scope.spinning = false;
+                    $ionicPopup.alert({
+                        title: 'Oops!',
+                        template: 'Something went wrong! Please make sure GPS is enabled and try again.'
+                    });
+                });
+        };
+
+        $scope.doSeek = function () {
+            if (!$scope.loggedUser.loggedIn) {
+                var popup = $ionicPopup.alert({
+                    title: 'Oops!',
+                    template: 'You need to be logged in.'
+                });
+                popup.then(function() {
+                    $scope.login();
+                });
+
+                return;
+            }
+
+            if (!$scope.gpsFound) {
+                $ionicPopup.alert({
+                    title: 'Oops!',
+                    template: 'We need your current position.'
+                });
+
+                return;
+            }
+
+            var req = {
+                method: 'POST',
+                url: ConfigService.server + '/api/ads',
+                headers: {
+                    'Accept': 'application/json',
+                    'Content-Type': 'application/json',
+                    'x-key': $scope.loggedUser.userId,
+                    'x-access-token': $scope.loggedUser.token
+                },
+                data: {
+                    title: $scope.seekData.title,
+                    description: $scope.seekData.description,
+                    category: $scope.seekData.category,
+                    radius: $scope.seekData.radius / 2,
+                    lat: $scope.seekData.lat,
+                    lon: $scope.seekData.lon,
+                    duration: $scope.seekData.duration
+                }
+            };
+
+            $http(req).success(function(response){
+                if (response.status === 200) {
+                    $ionicPopup.alert({
+                        title: 'Congratulations!',
+                        template: 'Your ad has been posted.'
+                    });
+
+                    $ionicHistory.nextViewOptions({
+                        disableAnimate: true,
+                        disableBack: true
+                    });
+
+                    $state.go('app.home');
+                } else {
+                    $ionicPopup.alert({
+                        title: 'Oops!',
+                        template: 'Something went wrong! Please try again.'
+                    });
+                }
+            }).error(function(response) {
+                if (response.status === 401) {
+                    var popup = $ionicPopup.alert({
+                        title: 'Oops!',
+                        template: 'Something went wrong! Please try again.'
+                    });
+                    popup.then(function() {
+                        $scope.login();
+                    });
+                } else {
+                    console.error('error when posting ad');
+
+                    $ionicPopup.alert({
+                        title: 'Oops!',
+                        template: 'Something went wrong! Please try again.'
+                    });
+                }
+            });
+        };
+    })
+
     .factory('ConfigService', function() {
         return {
-            server: 'http://192.168.1.110:3000'
+            server: 'http://62.203.77.210:3000'
         }
     });
