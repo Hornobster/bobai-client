@@ -66,7 +66,7 @@ var ads = {
         lat *= config.geo.lonLatDBScale;
         lon *= config.geo.lonLatDBScale;
 
-        var query = 'SELECT *, GCDist(?, ?, lat, lon) AS dist FROM ads HAVING dist < radius ORDER BY dist LIMIT ?';
+        var query = 'SELECT *, GCDist(?, ?, lat, lon) AS dist FROM ads HAVING dist < radius ORDER BY date_created LIMIT ?';
         var queryParams = [lat, lon, limit];
 
         if (req.query.category) {

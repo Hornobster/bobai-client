@@ -9,6 +9,7 @@ var auth = require('./auth.js');
 var registration = require('./registration.js');
 var proposals = require('./proposals.js');
 var ads = require('./ads.js');
+var categories = require('./categories.js');
 
 /*
 routes that can be accessed by anyone
@@ -25,6 +26,7 @@ router.get('/api/proposalsOf/:userid', proposals.getByUserId);
 router.get('/api/proposals/:adid', proposals.getByAdId);
 router.get('/api/ads/:id', ads.getById);
 router.get('/api/adsOf/:userid', ads.getByUserId);
+router.get('/api/categories', categories.getCategories);
 
 router.post('/api/ads', ads.postAd);
 router.post('/api/adsNearby', ads.getNearby);
