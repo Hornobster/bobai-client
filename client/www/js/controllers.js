@@ -32,6 +32,8 @@ angular.module('starter.controllers', [ ])
             scope: $scope
         }).then(function (modal) {
             $scope.modal = modal;
+
+            $scope.getCategories(); // this will also guarantee we are logged in
         });
 
         // Triggered in the login modal to close it
@@ -70,6 +72,8 @@ angular.module('starter.controllers', [ ])
                     $scope.loggedUser.token = response.token;
                     $scope.loggedUser.userId = response.user.id;
                     $scope.loggedUser.username = response.user.username;
+
+                    $scope.getCategories();
 
                     $scope.closeLogin();
                 } else {
@@ -167,6 +171,29 @@ angular.module('starter.controllers', [ ])
 
             $state.go('app.signup');
         };
+
+        $scope.getCategories = function () {
+            var req = {
+                method: 'GET',
+                url: ConfigService.server + '/api/categories',
+                headers: {
+                    'Accept': 'application/json',
+                    'Content-Type': 'application/json',
+                    'x-key': $scope.loggedUser.userId,
+                    'x-access-token': $scope.loggedUser.token
+                }
+            };
+
+            $http(req).success(function(response){
+                $scope.categories = response;
+            }).error(function(response) {
+                if (response.status === 401) {
+                    $scope.login();
+                } else {
+                    $scope.categories = [{id: -1, name: "error"}]
+                }
+            });
+        };
     })
 
     .controller('SignupCtrl', function($scope, $ionicHistory, $state, $http, $ionicPopup, ConfigService) {
@@ -215,17 +242,19 @@ angular.module('starter.controllers', [ ])
 
             $http(req).success(function(response){
                 if (response.status === 200) {
-                    $ionicPopup.alert({
+                    var popup = $ionicPopup.alert({
                         title: 'Congratulations!',
                         template: 'Welcome to Bobai! You can now login.'
                     });
+                    popup.then(function () {
+                        $ionicHistory.nextViewOptions({
+                            disableAnimate: true,
+                            disableBack: true
+                        });
 
-                    $ionicHistory.nextViewOptions({
-                        disableAnimate: true,
-                        disableBack: true
+                        $state.go('app.home');
+                        $scope.login();
                     });
-
-                    $state.go('app.home');
                 } else {
                     $ionicPopup.alert({
                         title: 'Oops!',
@@ -257,7 +286,7 @@ angular.module('starter.controllers', [ ])
                     });
                 }
             });
-        }
+        };
     })
 
     .controller('HomeCtrl', function($scope, $ionicHistory, $state) {
@@ -268,7 +297,16 @@ angular.module('starter.controllers', [ ])
             });
 
             $state.go('app.seek');
-        }
+        };
+
+        $scope.manageAds = function () {
+            $ionicHistory.nextViewOptions({
+                disableAnimate: true,
+                disableBack: true
+            });
+
+            $state.go('app.myads');
+        };
     })
 
     .controller('SeekCtrl', function($scope, $ionicPopup, $ionicHistory, $state, $http, $cordovaGeolocation, ConfigService) {
@@ -362,7 +400,7 @@ angular.module('starter.controllers', [ ])
                 if (response.status === 401) {
                     var popup = $ionicPopup.alert({
                         title: 'Oops!',
-                        template: 'Something went wrong! Please try again.'
+                        template: 'You need to be logged in.'
                     });
                     popup.then(function() {
                         $scope.login();
@@ -377,6 +415,97 @@ angular.module('starter.controllers', [ ])
                 }
             });
         };
+    })
+
+    .controller('MyAdsCtrl', function ($scope, $http, $ionicPopup, ConfigService) {
+        $scope.myadsData = {
+            categoryFilter: 0,
+            myads: []
+        };
+
+        $scope.getMyAds = function () {
+            var req = {
+                method: 'GET',
+                url: ConfigService.server + '/api/adsOf/' + $scope.loggedUser.userId + ($scope.myadsData.categoryFilter != 0 ? '?category=' + $scope.myadsData.categoryFilter : ''),
+                headers: {
+                    'Accept': 'application/json',
+                    'Content-Type': 'application/json',
+                    'x-key': $scope.loggedUser.userId,
+                    'x-access-token': $scope.loggedUser.token
+                }
+            };
+
+            $http(req).success(function(response){
+                $scope.myadsData.myads = response;
+                $scope.myadsData.myads.forEach(function (ad) {
+                    ad.duration = Math.floor((new Date(ad.date_expires) - Date.now()) / 3600000);
+                });
+            }).error(function(response) {
+                if (response.status === 401) {
+                    var popup = $ionicPopup.alert({
+                        title: 'Oops!',
+                        template: 'You need to be logged in.'
+                    });
+                    popup.then(function() {
+                        $scope.login();
+                    });
+                } else {
+                    console.log('error when loading my ads');
+
+                    $ionicPopup.alert({
+                        title: 'Oops!',
+                        template: 'Something went wrong! Please try again.'
+                    });
+                }
+            });
+        };
+        $scope.getMyAds();
+    })
+
+    .controller('MyAdCtrl', function ($scope, $stateParams, $http, $ionicPopup, ConfigService) {
+        $scope.myadData = {};
+
+        var req = {
+            method: 'GET',
+            url: ConfigService.server + '/api/ads/' + $stateParams.id,
+            headers: {
+                'Accept': 'application/json',
+                'Content-Type': 'application/json',
+                'x-key': $scope.loggedUser.userId,
+                'x-access-token': $scope.loggedUser.token
+            }
+        };
+
+        $http(req).success(function(response){
+            $scope.myadData.myad = response;
+            $scope.myadData.myad.duration = Math.floor((new Date($scope.myadData.myad.date_expires) - Date.now()) / 3600000);
+            $scope.categories.forEach(function (cat) {
+                if (cat.id === $scope.myadData.myad.category) {
+                    $scope.myadData.myad.category = cat.name;
+                }
+            });
+        }).error(function(response) {
+            if (response.status === 401) {
+                var popup = $ionicPopup.alert({
+                    title: 'Oops!',
+                    template: 'You need to be logged in.'
+                });
+                popup.then(function() {
+                    $scope.login();
+                });
+            } else {
+                console.log('error when loading my ads');
+
+                $ionicPopup.alert({
+                    title: 'Oops!',
+                    template: 'Something went wrong! Please try again.'
+                });
+            }
+        });
+    })
+
+    .controller('MyAdPropsCtrl', function ($scope, $stateParams, $http, $ionicPopup, ConfigService) {
+        $scope.test = $stateParams.adid;
     })
 
     .factory('ConfigService', function() {

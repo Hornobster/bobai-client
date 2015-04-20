@@ -1,0 +1,59 @@
+<ion-view view-title="I Miei Annunci">
+    <ion-content>
+        <div class="list card">
+
+            <div class="item">
+                <h2>{{myadData.myad.title}}</h2>
+
+                <p>@{{loggedUser.username}}</p>
+                <br>
+
+                <p>Pubblicato il {{myadData.myad.date_created | date:"d MMMM, y 'alle' h:mm a"}}</p>
+                <p>Scade il {{myadData.myad.date_expires | date:"d MMMM, y 'alle' h:mm a"}}</p>
+                <p><ng-pluralize count="myadData.myad.duration"
+                                 when="{'0': '(0 ore rimaste)',
+                       'one': '(1 ora rimasta)',
+                       'other': '({} ore rimaste)'}">
+                </ng-pluralize></p>
+            </div>
+
+            <div class="item item-body">
+                <h2>Categoria</h2>
+
+                <p>
+                    {{myadData.myad.category}}
+                </p>
+
+                <h2>Descrizione</h2>
+
+                <p>
+                    {{myadData.myad.description}}
+                </p>
+
+                <h2>Raggio ricerca</h2>
+
+                <p>
+                    {{myadData.myad.radius}} km
+                </p>
+
+                <div class="item-image">
+                    <img ng-src="http://maps.googleapis.com/maps/api/staticmap?center={{myadData.myad.lat / 10000}},{{myadData.myad.lon / 10000}}&zoom=14&size=400x300&markers=color:red|{{myadData.myad.lat / 10000}},{{myadData.myad.lon / 10000}}">
+                </div>
+            </div>
+
+        </div>
+
+        <div class="item tabs tabs-secondary tabs-icon-left">
+            <a class="tab-item" href="#/app/myads/{{myadData.myad.id}}/proposals">
+                <i class="icon ion-social-usd"></i>
+                Proposte
+            </a>
+            <a class="tab-item" href="#">
+                <i class="icon ion-share"></i>
+                Condividi
+            </a>
+        </div>
+
+        </div>
+    </ion-content>
+</ion-view>

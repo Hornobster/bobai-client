@@ -44,7 +44,28 @@ angular.module('starter', ['ionic', 'ngCordova', 'starter.controllers'])
                 url: "/myads",
                 views: {
                     'menuContent': {
-                        templateUrl: "templates/myads.html"
+                        templateUrl: "templates/myads.html",
+                        controller: 'MyAdsCtrl'
+                    }
+                }
+            })
+
+            .state('app.myad', {
+                url: "/myads/:id",
+                views: {
+                    'menuContent': {
+                        templateUrl: "templates/myad.html",
+                        controller: 'MyAdCtrl'
+                    }
+                }
+            })
+
+            .state('app.myadprops', {
+                url: "/myads/:adid/proposals",
+                views: {
+                    'menuContent': {
+                        templateUrl: "templates/myadprops.html",
+                        controller: 'MyAdPropsCtrl'
                     }
                 }
             })

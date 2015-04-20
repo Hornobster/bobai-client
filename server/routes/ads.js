@@ -18,6 +18,8 @@ var ads = {
             queryParams.push(req.query.category);
         }
 
+        query += ' ORDER BY date_expires';
+
         connection.query(query, queryParams, function(err, result) {
             if (err) {
                 res.status(500);
@@ -66,13 +68,15 @@ var ads = {
         lat *= config.geo.lonLatDBScale;
         lon *= config.geo.lonLatDBScale;
 
-        var query = 'SELECT *, GCDist(?, ?, lat, lon) AS dist FROM ads HAVING dist < radius ORDER BY date_created LIMIT ?';
+        var query = 'SELECT *, GCDist(?, ?, lat, lon) AS dist FROM ads';
         var queryParams = [lat, lon, limit];
 
         if (req.query.category) {
-            query = 'SELECT *, GCDist(?, ?, lat, lon) AS dist FROM ads WHERE category = ? HAVING dist < radius ORDER BY dist LIMIT ?';
+            query = 'SELECT *, GCDist(?, ?, lat, lon) AS dist FROM ads WHERE category = ?';
             queryParams = [lat, lon, req.query.category, limit];
         }
+
+        query += ' HAVING dist < radius ORDER BY date_created LIMIT ?';
 
         connection.query(query, queryParams, function(err, result) {
             if (err) {
