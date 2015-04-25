@@ -310,7 +310,11 @@ angular.module('starter.controllers', [ ])
     })
 
     .controller('SeekCtrl', function($scope, $ionicPopup, $ionicHistory, $state, $http, $cordovaGeolocation, ConfigService) {
-        $scope.seekData = {};
+        $scope.seekData = {
+            homeDelivery: false,
+            radius: 10,
+            duration: 24
+        };
 
         $scope.gpsFound = false;
         $scope.spinning = false;
@@ -333,6 +337,10 @@ angular.module('starter.controllers', [ ])
                         template: 'Something went wrong! Please make sure GPS is enabled and try again.'
                     });
                 });
+        };
+
+        $scope.fixRadiusInput = function () {
+            $scope.seekData.radius = 100;
         };
 
         $scope.doSeek = function () {
@@ -510,6 +518,6 @@ angular.module('starter.controllers', [ ])
 
     .factory('ConfigService', function() {
         return {
-            server: 'http://62.203.77.210:3000'
+            server: 'http://192.168.1.110:3000'
         }
     });

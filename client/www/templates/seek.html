@@ -18,13 +18,19 @@
                 </label>
                 <div class="item range range-positive">
                     <i class="icon ion-android-wifi"></i>
-                    <input ng-model="seekData.radius" type="range" name="range" min="1" max="100" value="1">
+                    <input ng-model="seekData.radius" ng-disabled="seekData.homeDelivery" type="range" name="range" min="5" max="100" value="1">
                     <span>{{seekData.radius / 2 || 1}} km</span>
                 </div>
                 <div class="item range range-positive">
                     <i class="icon ion-clock"></i>
                     <input ng-model="seekData.duration" type="range" name="range" min="1" max="48" value="1">
                     <span>{{seekData.duration || 1}} h</span>
+                </div>
+                <div class="item item-checkbox">
+                    <label class="checkbox">
+                        <input ng-model="seekData.homeDelivery" ng-change="fixRadiusInput()" type="checkbox">
+                    </label>
+                    Consegna a domicilio
                 </div>
                 <label class="item">
                     <button class="button button-block icon ion-location" type="button" ng-click="getGPS()"> Ottieni posizione GPS</button>
