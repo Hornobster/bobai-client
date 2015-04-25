@@ -219,7 +219,7 @@ angular.module('starter.controllers', [ ])
             if ($scope.signupData.password !== $scope.signupData.repeat) {
                 $ionicPopup.alert({
                     title: 'Oops!',
-                    template: 'Passwords don\'t match.'
+                    template: 'Le password non corrispondono.'
                 });
 
                 return;
@@ -243,8 +243,8 @@ angular.module('starter.controllers', [ ])
             $http(req).success(function(response){
                 if (response.status === 200) {
                     var popup = $ionicPopup.alert({
-                        title: 'Congratulations!',
-                        template: 'Welcome to Bobai! You can now login.'
+                        title: 'Congratulazioni!',
+                        template: 'Benvenuto su Bobai! Ora puoi effettuare il login.'
                     });
                     popup.then(function () {
                         $ionicHistory.nextViewOptions({
@@ -258,7 +258,7 @@ angular.module('starter.controllers', [ ])
                 } else {
                     $ionicPopup.alert({
                         title: 'Oops!',
-                        template: 'Something went wrong! Please try again.'
+                        template: 'Qualcosa é andato storto! Riprova.'
                     });
                 }
             }).error(function(response) {
@@ -266,7 +266,7 @@ angular.module('starter.controllers', [ ])
                     if (response.duplicates) {
                         var popupAlert = $ionicPopup.alert({
                             title: 'Oops!',
-                            template: 'Someone already used your username, email or mobile number! Please try another.'
+                            template: 'Username, email e/o numero di telefono non disponibili!'
                         });
                         popupAlert.then(function () {
                             $scope.duplicates = response.duplicates;
@@ -274,7 +274,7 @@ angular.module('starter.controllers', [ ])
                     } else {
                         $ionicPopup.alert({
                             title: 'Oops!',
-                            template: 'Something went wrong! Please try again.'
+                            template: 'Qualcosa é andato storto! Riprova.'
                         });
                     }
                 } else {
@@ -282,7 +282,7 @@ angular.module('starter.controllers', [ ])
 
                     $ionicPopup.alert({
                         title: 'Oops!',
-                        template: 'Something went wrong! Please try again.'
+                        template: 'Qualcosa é andato storto! Riprova.'
                     });
                 }
             });
@@ -334,7 +334,7 @@ angular.module('starter.controllers', [ ])
                     $scope.spinning = false;
                     $ionicPopup.alert({
                         title: 'Oops!',
-                        template: 'Something went wrong! Please make sure GPS is enabled and try again.'
+                        template: 'Qualcosa é andato storto! Assicurati che il GPS sia attivo e riprova.'
                     });
                 });
         };
@@ -347,7 +347,7 @@ angular.module('starter.controllers', [ ])
             if (!$scope.loggedUser.loggedIn) {
                 var popup = $ionicPopup.alert({
                     title: 'Oops!',
-                    template: 'You need to be logged in.'
+                    template: 'Devi aver effettuato il login.'
                 });
                 popup.then(function() {
                     $scope.login();
@@ -359,7 +359,7 @@ angular.module('starter.controllers', [ ])
             if (!$scope.gpsFound) {
                 $ionicPopup.alert({
                     title: 'Oops!',
-                    template: 'We need your current position.'
+                    template: 'Abbiamo bisogno della tua posizione corrente. Premi il tasto Ottieni posizione GPS e riprova.'
                 });
 
                 return;
@@ -389,8 +389,8 @@ angular.module('starter.controllers', [ ])
             $http(req).success(function(response){
                 if (response.status === 200) {
                     $ionicPopup.alert({
-                        title: 'Congratulations!',
-                        template: 'Your ad has been posted.'
+                        title: 'Congratulazioni!',
+                        template: 'Il tuo annuncio é stato pubblicato.'
                     });
 
                     $ionicHistory.nextViewOptions({
@@ -402,14 +402,14 @@ angular.module('starter.controllers', [ ])
                 } else {
                     $ionicPopup.alert({
                         title: 'Oops!',
-                        template: 'Something went wrong! Please try again.'
+                        template: 'Qualcosa é andato storto! Riprova.'
                     });
                 }
             }).error(function(response) {
                 if (response.status === 401) {
                     var popup = $ionicPopup.alert({
                         title: 'Oops!',
-                        template: 'You need to be logged in.'
+                        template: 'Devi aver effettuato il login.'
                     });
                     popup.then(function() {
                         $scope.login();
@@ -419,7 +419,7 @@ angular.module('starter.controllers', [ ])
 
                     $ionicPopup.alert({
                         title: 'Oops!',
-                        template: 'Something went wrong! Please try again.'
+                        template: 'Qualcosa é andato storto! Riprova.'
                     });
                 }
             });
@@ -453,7 +453,7 @@ angular.module('starter.controllers', [ ])
                 if (response.status === 401) {
                     var popup = $ionicPopup.alert({
                         title: 'Oops!',
-                        template: 'You need to be logged in.'
+                        template: 'Devi aver effettuato il login.'
                     });
                     popup.then(function() {
                         $scope.login();
@@ -463,7 +463,7 @@ angular.module('starter.controllers', [ ])
 
                     $ionicPopup.alert({
                         title: 'Oops!',
-                        template: 'Something went wrong! Please try again.'
+                        template: 'Qualcosa é andato storto! Riprova.'
                     });
                 }
             });
@@ -488,6 +488,7 @@ angular.module('starter.controllers', [ ])
         $http(req).success(function(response){
             $scope.myadData.myad = response;
             $scope.myadData.myad.duration = Math.floor((new Date($scope.myadData.myad.date_expires) - Date.now()) / 3600000);
+            $scope.myadData.myad.homeDelivery = $scope.myadData.myad.homeDelivery ? 'si' : 'no';
             $scope.categories.forEach(function (cat) {
                 if (cat.id === $scope.myadData.myad.category) {
                     $scope.myadData.myad.category = cat.name;
@@ -497,7 +498,7 @@ angular.module('starter.controllers', [ ])
             if (response.status === 401) {
                 var popup = $ionicPopup.alert({
                     title: 'Oops!',
-                    template: 'You need to be logged in.'
+                    template: 'Devi aver effettuato il login.'
                 });
                 popup.then(function() {
                     $scope.login();
@@ -507,7 +508,7 @@ angular.module('starter.controllers', [ ])
 
                 $ionicPopup.alert({
                     title: 'Oops!',
-                    template: 'Something went wrong! Please try again.'
+                    template: 'Qualcosa é andato storto! Riprova.'
                 });
             }
         });
