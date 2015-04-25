@@ -101,8 +101,9 @@ var ads = {
         var lat = req.body.lat || '';
         var lon = req.body.lon || '';
         var duration = req.body.duration || '';
+        var homeDelivery = req.body.homeDelivery || '';
 
-        if (title === '' || description === '' || category === '' || radius === '' || lat === '' || lon === '' || duration === '' ||
+        if (title === '' || description === '' || category === '' || radius === '' || lat === '' || lon === '' || duration === '' || homeDelivery === '' ||
             title.length > config.adsInfo.titleMaxLength || description.length > config.adsInfo.descriptionMaxLength || duration > config.adsInfo.maxDuration) {
             res.status(400);
             res.json({
@@ -123,7 +124,8 @@ var ads = {
             radius: radius,
             lat: lat * config.geo.lonLatDBScale,
             lon: lon * config.geo.lonLatDBScale,
-            date_expires: date_expires
+            date_expires: date_expires,
+            homeDelivery: homeDelivery
         };
 
         connection.query('INSERT INTO ads SET ?', ad, function(err, result){

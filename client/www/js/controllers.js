@@ -381,7 +381,8 @@ angular.module('starter.controllers', [ ])
                     radius: $scope.seekData.radius / 2,
                     lat: $scope.seekData.lat,
                     lon: $scope.seekData.lon,
-                    duration: $scope.seekData.duration
+                    duration: $scope.seekData.duration,
+                    homeDelivery: ($scope.seekData.homeDelivery ? 1 : 0)
                 }
             };
 
