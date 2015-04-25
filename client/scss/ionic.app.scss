@@ -4,20 +4,57 @@ in ionic's _variables.scss file.
 
 For example, you might change some of the default colors:
 
+*/
+
 $light:                           #fff !default;
 $stable:                          #f8f8f8 !default;
-$positive:                        #387ef5 !default;
-$calm:                            #11c1f3 !default;
-$balanced:                        #33cd5f !default;
+$positive:                        #64A6B1 !default;
+$calm:                            #E9F4D9 !default;
+$balanced:                        #AEC4B1 !default;
 $energized:                       #ffc900 !default;
-$assertive:                       #ef473a !default;
+$assertive:                       #FC4E00 !default;
 $royal:                           #886aea !default;
-$dark:                            #444 !default;
-*/
+$dark:                            #192628 !default;
 
 // The path for our ionicons font files, relative to the built CSS in www/css
 $ionicons-font-path: "../lib/ionic/fonts" !default;
 
 // Include all of Ionic
 @import "www/lib/ionic/scss/ionic";
+
+// mystuff
+
+.dark {
+  background-color: #3f4041 !important;
+  color: #ffffff;
+  .scroll-content {
+    background-color: #3f4041 !important;
+  }
+  .item-content, .item {
+    background-color: $dark;
+    border: none;
+    border-top: 1px solid #464646;
+    border-bottom: 2px solid #333333;
+    color: #F0F1F1;
+    max-height: none;
+
+    &:last-child {
+      border-bottom: 1px solid $assertive;
+    }
+    &.current{ background-color:darken( $dark, 10% )   !important;
+      border-top: 1px solid #464646 !important;
+      border-bottom: 2px solid #333333 !important;
+      p,h3{opacity: .7;}
+    }
+  }
+  h2,
+  h3,
+  p,
+  a{
+    color: #F0F1F1;
+  }
+}
+.dark-head {
+  text-decoration: none;
+}
 
