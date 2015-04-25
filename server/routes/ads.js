@@ -113,7 +113,7 @@ var ads = {
         }
 
         var date_expires = new Date();
-        date_expires.setUTCHours(date_expires.getUTCHours() + duration);
+        date_expires.setTime(date_expires.getTime() + (duration*60*60*1000));
 
         var ad = {
             userid: req.loggedUserId,
