@@ -1,0 +1,20 @@
+<ion-view view-title="Proponi un affare">
+    <div class="bar bar-subheader item-input-inset item-select">
+        <label class="input-label">
+            Categoria
+        </label>
+        <select ng-model="proposeData.categoryFilter" ng-change="getNearbyAds()">
+            <option value="0">Qualsiasi</option>
+            <option ng-repeat="category in categories" value="{{category.id}}">{{category.name}}</option>
+        </select>
+    </div>
+    <ion-content class="has-subheader">
+        <div class="list">
+            <a class="item" href="#/app/propose/{{ad.id}}" ng-repeat="ad in proposeData.ads">
+                <h2>{{ad.title}}</h2>
+                <p>Scade tra {{ad.duration}} ore</p>
+                <p>{{ad.dist | number}} km</p>
+            </a>
+        </div>
+    </ion-content>
+</ion-view>

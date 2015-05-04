@@ -89,6 +89,36 @@ angular.module('starter', ['ionic', 'ngCordova', 'starter.controllers'])
                 }
             })
 
+            .state('app.propose', {
+                url: "/propose",
+                views: {
+                    'menuContent': {
+                        templateUrl: "templates/propose.html",
+                        controller: 'ProposeCtrl'
+                    }
+                }
+            })
+
+            .state('app.proposedetail', {
+                url: "/propose/:adid",
+                views: {
+                    'menuContent': {
+                        templateUrl: "templates/proposedetail.html",
+                        controller: 'ProposeDetailCtrl'
+                    }
+                }
+            })
+
+            .state('app.proposetoad', {
+                url: "/propose/:adid/post",
+                views: {
+                    'menuContent': {
+                        templateUrl: "templates/proposetoad.html",
+                        controller: 'ProposeToAdCtrl'
+                    }
+                }
+            })
+
             .state('app.signup', {
                 url: "/signup",
                 views: {

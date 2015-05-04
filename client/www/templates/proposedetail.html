@@ -1,0 +1,44 @@
+<ion-view view-title="Proponi un affare">
+    <ion-content>
+        <div class="list card">
+            <div class="item">
+                <h2>{{proposeDetailData.title}}</h2>
+                <br>
+
+                <p>Pubblicato il {{proposeDetailData.date_created | date:"d MMMM, y 'alle' h:mm a"}}</p>
+                <p>Scade il {{proposeDetailData.date_expires | date:"d MMMM, y 'alle' h:mm a"}}</p>
+                <p><ng-pluralize count="proposeDetailData.duration"
+                                 when="{'0': '(0 ore rimaste)',
+                       'one': '(1 ora rimasta)',
+                       'other': '({} ore rimaste)'}">
+                </ng-pluralize></p>
+            </div>
+
+            <div class="item item-body">
+                <h2>Categoria</h2>
+
+                <p>
+                    {{proposeDetailData.category}}
+                </p>
+
+                <h2>Descrizione</h2>
+
+                <p>
+                    {{proposeDetailData.description}}
+                </p>
+
+                <h2>Consegna a domicilio</h2>
+
+                <p>
+                    {{proposeDetailData.homeDelivery}}
+                </p>
+            </div>
+
+            <div class="item">
+                    <a class="button button-block button-positive" href="#/app/propose/{{proposeDetailData.id}}/post">
+                        Pubblica una proposta
+                    </a>
+            </div>
+        </div>
+    </ion-content>
+</ion-view>
