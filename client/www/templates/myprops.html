@@ -1,5 +1,21 @@
 <ion-view view-title="Le Mie Proposte">
-    <ion-content>
-        <h1>Playlist</h1>
+    <div class="bar bar-subheader item-input-inset item-select">
+        <label class="input-label">
+            Categoria
+        </label>
+        <select ng-model="mypropsData.categoryFilter" ng-change="getMyProps()">
+            <option value="0">Qualsiasi</option>
+            <option ng-repeat="category in categories" value="{{category.id}}">{{category.name}}</option>
+        </select>
+    </div>
+    <ion-content class="has-subheader">
+        <div class="list">
+            <a class="item item-thumbnail-left" href="#/app/myprops/{{prop.id}}" ng-repeat="prop in mypropsData.myprops">
+                <img ng-src="{{prop.photo}}">
+                <h2>{{prop.title}}</h2>
+                <p>{{prop.price}}€</p>
+                <p>Note: {{prop.notes}}</p>
+            </a>
+        </div>
     </ion-content>
 </ion-view>

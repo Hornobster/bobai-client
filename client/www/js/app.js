@@ -74,7 +74,8 @@ angular.module('starter', ['ionic', 'ngCordova', 'starter.controllers'])
                 url: "/myprops",
                 views: {
                     'menuContent': {
-                        templateUrl: "templates/myprops.html"
+                        templateUrl: "templates/myprops.html",
+                        controller: 'MyPropsCtrl'
                     }
                 }
             })

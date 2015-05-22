@@ -52,7 +52,7 @@ app.post('/api/proposals', multer({
     }
 }));
 app.use('/', require('./routes/index.js'));
-app.use('/photo/', express.static(path.join(__dirname, './uploads')));
+app.use('/uploads/', express.static(path.join(__dirname, './uploads')));
 
 var server = app.listen(process.env.PORT || config.serverInfo.defaultPort, function(){
     var host = server.address().address;

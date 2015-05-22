@@ -484,7 +484,10 @@ angular.module('starter.controllers', [ ])
                 }
             });
         };
-        $scope.getMyAds();
+
+        $scope.$on('$ionicView.afterEnter', function () {
+            $scope.getMyAds();
+        });
     })
 
     .controller('MyAdCtrl', function ($scope, $stateParams, $http, $ionicPopup, ConfigService) {
@@ -532,6 +535,54 @@ angular.module('starter.controllers', [ ])
 
     .controller('MyAdPropsCtrl', function ($scope, $stateParams, $http, $ionicPopup, ConfigService) {
         $scope.test = $stateParams.adid;
+    })
+
+    .controller('MyPropsCtrl', function ($scope, $http, $ionicPopup, ConfigService) {
+        $scope.mypropsData = {
+            categoryFilter: 0,
+            myprops: []
+        };
+
+        $scope.getMyProps = function () {
+            var req = {
+                method: 'GET',
+                url: ConfigService.server + '/api/proposalsOf/' + $scope.loggedUser.userId + ($scope.mypropsData.categoryFilter != 0 ? '?category=' + $scope.mypropsData.categoryFilter : ''),
+                headers: {
+                    'Accept': 'application/json',
+                    'Content-Type': 'application/json',
+                    'x-key': $scope.loggedUser.userId,
+                    'x-access-token': $scope.loggedUser.token
+                }
+            };
+
+            $http(req).success(function(response){
+                $scope.mypropsData.myprops = response;
+                $scope.mypropsData.myprops.forEach(function (prop) {
+                    prop.photo = ConfigService.server + '/' + prop.photo;
+                });
+            }).error(function(response) {
+                if (response.status === 401) {
+                    var popup = $ionicPopup.alert({
+                        title: 'Oops!',
+                        template: 'Devi aver effettuato il login.'
+                    });
+                    popup.then(function() {
+                        $scope.login();
+                    });
+                } else {
+                    console.log('error when loading my props');
+
+                    $ionicPopup.alert({
+                        title: 'Oops!',
+                        template: 'Qualcosa é andato storto! Riprova.'
+                    });
+                }
+            });
+        };
+
+        $scope.$on('$ionicView.afterEnter', function () {
+            $scope.getMyProps();
+        });
     })
 
     .controller('ProposeCtrl', function ($scope, $http, $ionicPopup, $ionicLoading, $cordovaGeolocation, $state, $ionicHistory, ConfigService) {

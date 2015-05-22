@@ -10,11 +10,11 @@ var connection = mysql.createConnection(config.dbInfo);
 
 var proposals = {
     getByUserId: function(req, res) {
-        var query = 'SELECT * FROM proposals WHERE userid = ?';
+        var query = 'SELECT ads.title, proposals.* FROM ads, proposals WHERE proposals.userid = ? AND ads.id = proposals.adid';
         var queryParams = [req.params.userid];
 
         if (req.query.category) {
-            query = 'SELECT proposals.* FROM proposals, ads WHERE proposals.userid = ? AND ads.id = proposals.adid AND ads.category = ?';
+            query = 'SELECT ads.title, proposals.* FROM ads, proposals WHERE proposals.userid = ? AND ads.id = proposals.adid AND ads.category = ?';
             queryParams.push(req.query.category);
         }
 
