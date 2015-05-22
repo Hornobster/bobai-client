@@ -18,9 +18,9 @@ module.exports = function(req, res, next) {
             if (decoded.exp <= Date.now()) { // token expired, update IMDB token table and send error
                 dbutils.destroyToken(token);
 
-                res.status(400);
+                res.status(401);
                 res.json({
-                    status: 400,
+                    status: 401,
                     message: config.statusMessages.tokenExpired
                 });
                 return;

@@ -50,11 +50,16 @@ var proposals = {
     },
 
     postProposal: function(req, res) {
+        var file = req.files.file;
+
         var adId = req.body.adId || '';
+        var price = req.body.price || '';
+        var notes = req.body.notes || '';
         var lon = req.body.lon || '';
         var lat = req.body.lat || '';
+        var photo = file ? file.path : null;
 
-        if (adId === '' || lon === '' || lat === '') {
+        if (adId === '' || lon === '' || lat === '' || price === '' || notes === '') {
             res.status(400);
             res.json({
                 status: 400,
@@ -66,8 +71,11 @@ var proposals = {
         var proposal = {
             userid: req.loggedUserId,
             adid: adId,
+            price: price,
+            notes: notes,
             lat: lat * config.geo.lonLatDBScale,
-            lon: lon * config.geo.lonLatDBScale
+            lon: lon * config.geo.lonLatDBScale,
+            photo: photo
         };
 
         connection.query('INSERT INTO proposals SET ?', proposal, function(err, result) {

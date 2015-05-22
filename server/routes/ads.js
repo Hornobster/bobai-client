@@ -102,7 +102,7 @@ var ads = {
         var lon = req.body.lon || '';
         var duration = req.body.duration || '';
         var homeDelivery = req.body.homeDelivery || 0;
-        
+
         if (title === '' || description === '' || category === '' || radius === '' || lat === '' || lon === '' || duration === '' || homeDelivery === '' ||
             title.length > config.adsInfo.titleMaxLength || description.length > config.adsInfo.descriptionMaxLength || duration > config.adsInfo.maxDuration) {
             res.status(400);

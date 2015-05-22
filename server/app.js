@@ -5,6 +5,22 @@ var express = require('express');
 var bodyParser = require('body-parser');
 var dbutils = require('./utils/dbutils.js');
 var config = require('./config.js');
+var fs = require('fs');
+var multer = require('multer');
+var path = require('path');
+
+// Create the "uploads" folder if it doesn't exist
+fs.exists(__dirname + '/uploads', function (exists) {
+    if (!exists) {
+        console.log('Creating directory ' + __dirname + '/uploads');
+        fs.mkdir(__dirname + '/uploads', function (err) {
+            if (err) {
+                console.log('Error creating ' + __dirname + '/uploads');
+                process.exit(1);
+            }
+        })
+    }
+});
 
 var app = express();
 
@@ -26,8 +42,17 @@ app.all('/*', function(req, res, next) {
 app.all('/api/*', [require('./middleware/validateRequest.js')]);
 app.all('/logout', [require('./middleware/validateRequest.js')]);
 
+/**
+ * stuff for photo uploads
+ */
+app.post('/api/proposals', multer({
+    dest: './uploads',
+    rename: function (fieldname, filename) {
+        return filename.replace(/\W+/g, '-').toLowerCase() + Date.now();
+    }
+}));
 app.use('/', require('./routes/index.js'));
-
+app.use('/photo/', express.static(path.join(__dirname, './uploads')));
 
 var server = app.listen(process.env.PORT || config.serverInfo.defaultPort, function(){
     var host = server.address().address;

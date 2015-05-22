@@ -544,7 +544,7 @@ angular.module('starter.controllers', [ ])
 
         $scope.showGPSLoading = function() {
             $ionicLoading.show({
-                template: '<label class="item centered"> <ion-spinner></ion-spinner> </label><p>Localizzazione GPS in corso...</p>',
+                template: '<ion-spinner class="centered"></ion-spinner><p>Localizzazione GPS in corso...</p>',
                 scope: $scope
             });
         };
@@ -630,11 +630,13 @@ angular.module('starter.controllers', [ ])
         });
     })
 
-    .controller('ProposeToAdCtrl', function ($scope, $stateParams) {
+    .controller('ProposeToAdCtrl', function ($scope, $stateParams, $ionicPopup, $ionicLoading, $http, $cordovaGeolocation, $state, $ionicHistory, ConfigService) {
         $scope.proposeToAdData = {
             adId: $stateParams.adid,
             price: 0,
-            notes: ''
+            notes: '',
+            lat: null,
+            lon: null
         };
 
         $scope.photoSelected = false;
@@ -642,6 +644,120 @@ angular.module('starter.controllers', [ ])
 
         $scope.doPropose = function () {
             console.log('proposing');
+
+            if (!$scope.loggedUser.loggedIn) {
+                var popup = $ionicPopup.alert({
+                    title: 'Oops!',
+                    template: 'Devi aver effettuato il login.'
+                });
+                popup.then(function() {
+                    $scope.login();
+                });
+
+                return;
+            }
+
+            $ionicLoading.show({
+                template: '<ion-spinner class="centered"></ion-spinner><p>Localizzazione GPS in corso...</p>',
+                scope: $scope
+            });
+
+            $cordovaGeolocation.getCurrentPosition({enableHighAccuracy: true})
+                .then(function (position) {
+                    $scope.proposeToAdData.lat = position.coords.latitude;
+                    $scope.proposeToAdData.lon = position.coords.longitude;
+                    $ionicLoading.hide();
+
+                    if ($scope.photoSelected) {
+                        var options = new FileUploadOptions();
+                        options.fileKey = "file";
+                        options.fileName = $scope.photoURI.substr($scope.photoURI.lastIndexOf('/') + 1);
+                        options.mimeType = "image/jpeg";
+                        options.params = $scope.proposeToAdData;
+                        options.headers = {
+                            'x-key': $scope.loggedUser.userId,
+                            'x-access-token': $scope.loggedUser.token
+                        };
+
+                        var ft = new FileTransfer();
+                        ft.upload($scope.photoURI, encodeURI(ConfigService.server + '/api/proposals'), function () {
+                            $ionicPopup.alert({
+                                title: 'Successo!',
+                                template: 'Proposta pubblicata.'
+                            }).then(function () {
+                                $ionicHistory.nextViewOptions({
+                                    disableAnimate: true,
+                                    disableBack: true
+                                });
+
+                                $state.go('app.myprops');
+                            });
+                        }, function () {
+                            $ionicPopup.alert({
+                                title: 'Oops!',
+                                template: 'Qualcosa é andato storto.'
+                            });
+                        }, options);
+                    } else {
+                        var req = {
+                            method: 'POST',
+                            url: ConfigService.server + '/api/proposals',
+                            headers: {
+                                'Accept': 'application/json',
+                                'Content-Type': 'application/json',
+                                'x-key': $scope.loggedUser.userId,
+                                'x-access-token': $scope.loggedUser.token
+                            },
+                            data: $scope.proposeToAdData
+                        };
+
+                        $http(req).success(function(response){
+                            $ionicPopup.alert({
+                                title: 'Successo!',
+                                template: 'Proposta pubblicata.'
+                            }).then(function () {
+                                $ionicHistory.nextViewOptions({
+                                    disableAnimate: true,
+                                    disableBack: true
+                                });
+
+                                $state.go('app.myprops');
+                            });
+                        }).error(function(response) {
+                            if (response.status === 401) {
+                                var popup = $ionicPopup.alert({
+                                    title: 'Oops!',
+                                    template: 'Devi aver effettuato il login.'
+                                });
+                                popup.then(function() {
+                                    $scope.login();
+                                });
+                            } else {
+                                console.log('error when loading nearby ads');
+
+                                $ionicPopup.alert({
+                                    title: 'Oops!',
+                                    template: 'Qualcosa é andato storto! Riprova.'
+                                });
+                            }
+                        });
+                    }
+                },
+                function () {
+                    $ionicPopup.alert({
+                        title: 'Oops!',
+                        template: 'Qualcosa é andato storto! Assicurati che il GPS sia attivo e riprova.'
+                    }).then(function () {
+                        $ionicLoading.hide();
+
+                        $ionicHistory.nextViewOptions({
+                            disableAnimate: true,
+                            disableBack: true
+                        });
+                        $state.go('app.home');
+                    });
+                });
+
         };
 
         $scope.getPhoto = function () {
@@ -654,7 +770,6 @@ angular.module('starter.controllers', [ ])
                     });
                 },
                 function () {
-                    console.error('error when selecting image');
                     $scope.$apply(function () {
                         $scope.photoSelected = false;
                     });
@@ -690,8 +805,6 @@ angular.module('starter.controllers', [ ])
                 'x-access-token': $scope.loggedUser.token
             }
         };
-
-        console.log(req);
 
         $http(req).success(function(response){
             $scope.proposeDetailData = response;

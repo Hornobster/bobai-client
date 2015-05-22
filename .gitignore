@@ -15,3 +15,5 @@ bower_components
 client/platforms
 client/plugins
 client/resources
+
+server/uploads
