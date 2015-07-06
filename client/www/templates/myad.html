@@ -46,11 +46,10 @@
                     <img ng-src="http://maps.googleapis.com/maps/api/staticmap?center={{myadData.myad.lat / 10000}},{{myadData.myad.lon / 10000}}&zoom=14&size=400x300&markers=color:red|{{myadData.myad.lat / 10000}},{{myadData.myad.lon / 10000}}">
                 </div>
             </div>
-
         </div>
 
         <div class="item tabs tabs-secondary tabs-icon-left">
-            <a class="tab-item" href="#/app/myads/{{myadData.myad.id}}/proposals">
+            <a class="tab-item" ng-click="gotoAdProps()">
                 <i class="icon ion-social-usd"></i>
                 Proposte
             </a>

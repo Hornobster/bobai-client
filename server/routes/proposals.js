@@ -34,7 +34,23 @@ var proposals = {
     },
 
     getByAdId: function(req, res) {
-        connection.query('SELECT * FROM proposals WHERE adid = ?', req.params.adid, function(err, result) {
+        var lat = parseFloat(req.params.lat) || '';
+        var lon = parseFloat(req.params.lon) || '';
+        var adid = parseInt(req.params.adid) || '';
+
+        if (lat === '' || lon === '' || adid === '') {
+            res.status(400);
+            res.json({
+                status: 400,
+                message: config.statusMessages.dataInvalid
+            });
+            return;
+        }
+
+        lat *= config.geo.lonLatDBScale;
+        lon *= config.geo.lonLatDBScale;
+
+        connection.query('SELECT *, GCDist(?, ?, lat, lon) AS dist FROM proposals WHERE adid = ? ORDER BY dist', [lat, lon, adid], function(err, result) {
             if (err) {
                 res.status(500);
                 res.json({

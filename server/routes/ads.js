@@ -52,9 +52,9 @@ var ads = {
     },
 
     getNearby: function(req, res) {
-        var lat = req.body.lat || '';
-        var lon = req.body.lon || '';
-        var limit = req.body.limit || '';
+        var lat = parseFloat(req.params.lat) || '';
+        var lon = parseFloat(req.params.lon) || '';
+        var limit = parseInt(req.params.limit) || '';
 
         if (lat === '' || lon === '' || limit === '') {
             res.status(400);

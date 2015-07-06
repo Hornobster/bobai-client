@@ -32,14 +32,8 @@
                     </label>
                     Consegna a domicilio
                 </div>
-                <label class="item">
-                    <button class="button button-block icon ion-location" type="button" ng-click="getGPS()"> Ottieni posizione GPS</button>
-                </label>
-                <label ng-show="spinning" class="item centered">
-                    <ion-spinner></ion-spinner>
-                </label>
-                <div ng-show="gpsFound" class="item item-image">
-                    <img ng-src="http://maps.googleapis.com/maps/api/staticmap?center={{seekData.lat}},{{seekData.lon}}&zoom=14&size=400x300&markers=color:red|{{seekData.lat}},{{seekData.lon}}">
+                <div ng-show="loggedUser.gpsValid" class="item item-image">
+                    <img ng-src="http://maps.googleapis.com/maps/api/staticmap?center={{loggedUser.lat}},{{loggedUser.lon}}&zoom=14&size=400x300&markers=color:red|{{loggedUser.lat}},{{loggedUser.lon}}">
                 </div>
                 <label class="item">
                     <button class="button button-block button-positive" type="submit">Pubblica annuncio</button>

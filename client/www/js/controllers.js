@@ -1,11 +1,14 @@
-angular.module('starter.controllers', [ ])
+angular.module('starter.controllers', [])
 
-    .controller('AppCtrl', function ($scope, $ionicModal, $ionicPopup, $http, $ionicHistory, $state, ConfigService, $timeout) {
+    .controller('AppCtrl', function ($scope, $ionicModal, $ionicPopup, $http, $ionicHistory, $state, $cordovaGeolocation, $ionicLoading, ConfigService) {
         $scope.loggedUser = {
             loggedIn: false,
             userId: 0,
             username: 'anonymous',
-            token: 'notoken'
+            token: 'notoken',
+            lat: 0.0,
+            lon: 0.0,
+            gpsValid: false
         };
 
         if (localStorage.getItem('loggedIn') !== undefined) {
@@ -32,8 +35,6 @@ angular.module('starter.controllers', [ ])
             scope: $scope
         }).then(function (modal) {
             $scope.modal = modal;
-
-            $scope.getCategories(); // this will also guarantee we are logged in
         });
 
         // Triggered in the login modal to close it
@@ -61,7 +62,7 @@ angular.module('starter.controllers', [ ])
                 }
             };
 
-            $http(req).success(function(response){
+            $http(req).success(function (response) {
                 if (response.status === 200) {
                     localStorage.setItem('loggedIn', 'true');
                     localStorage.setItem('token', response.token);
@@ -82,7 +83,7 @@ angular.module('starter.controllers', [ ])
                         template: 'Qualcosa é andato storto! Assicurati di aver inserito le informazioni corrette (es. nome utente) e riprova.'
                     });
                 }
-            }).error(function(response) {
+            }).error(function (response) {
                 if (response.status === 401) {
                     $ionicPopup.alert({
                         title: 'Oops!',
@@ -100,7 +101,7 @@ angular.module('starter.controllers', [ ])
         };
 
         // logout request to server
-        $scope.logout = function() {
+        $scope.logout = function () {
             var confirmPopup = $ionicPopup.confirm({
                 title: 'Logout',
                 template: 'Are you sure you want to logout?'
@@ -127,7 +128,7 @@ angular.module('starter.controllers', [ ])
                                 title: 'Success!',
                                 template: 'You have logged out.'
                             });
-                            alertPopup.then(function() {
+                            alertPopup.then(function () {
                                 $ionicHistory.nextViewOptions({
                                     disableAnimate: true,
                                     disableBack: true
@@ -152,7 +153,7 @@ angular.module('starter.controllers', [ ])
                                 title: 'Success!',
                                 template: 'You have logged out.'
                             });
-                            alertPopup.then(function() {
+                            alertPopup.then(function () {
                                 $scope.login();
                             });
                         } else {
@@ -191,9 +192,9 @@ angular.module('starter.controllers', [ ])
                 }
             };
 
-            $http(req).success(function(response){
+            $http(req).success(function (response) {
                 $scope.categories = response;
-            }).error(function(response) {
+            }).error(function (response) {
                 if (response.status === 401) {
                     $scope.login();
                 } else {
@@ -201,9 +202,53 @@ angular.module('starter.controllers', [ ])
                 }
             });
         };
+
+        $scope.showGPSLoading = function () {
+            $ionicLoading.show({
+                template: '<ion-spinner class="centered"></ion-spinner><p>Localizzazione GPS in corso...</p>',
+                scope: $scope
+            });
+        };
+
+        $scope.hideGPSLoading = function () {
+            $ionicLoading.hide();
+        };
+
+        $scope.getGPS = function () {
+            $cordovaGeolocation.getCurrentPosition({enableHighAccuracy: true})
+                .then(
+                function (position) {
+                    $scope.loggedUser.gpsValid = true;
+                    $scope.loggedUser.lat = position.coords.latitude;
+                    $scope.loggedUser.lon = position.coords.longitude;
+                    $scope.hideGPSLoading();
+
+                    $scope.getCategories();
+                },
+                function () {
+                    $scope.loggedUser.gpsValid = false;
+
+                    $ionicPopup.alert({
+                        title: 'Oops!',
+                        template: 'Qualcosa é andato storto! Assicurati che il GPS sia attivo e riprova.'
+                    }).then(function () {
+                        $scope.hideGPSLoading();
+
+                        $ionicHistory.nextViewOptions({
+                            disableAnimate: true,
+                            disableBack: true
+                        });
+
+                        $state.go('app.home');
+                    });
+                });
+        };
+
+        $scope.showGPSLoading();
+        $scope.getGPS();
     })
 
-    .controller('SignupCtrl', function($scope, $ionicHistory, $state, $http, $ionicPopup, ConfigService) {
+    .controller('SignupCtrl', function ($scope, $ionicHistory, $state, $http, $ionicPopup, ConfigService) {
         $scope.signupData = {};
         $scope.duplicates = {
             username: false,
@@ -247,7 +292,7 @@ angular.module('starter.controllers', [ ])
                 }
             };
 
-            $http(req).success(function(response){
+            $http(req).success(function (response) {
                 if (response.status === 200) {
                     var popup = $ionicPopup.alert({
                         title: 'Congratulazioni!',
@@ -268,7 +313,7 @@ angular.module('starter.controllers', [ ])
                         template: 'Qualcosa é andato storto! Riprova.'
                     });
                 }
-            }).error(function(response) {
+            }).error(function (response) {
                 if (response.status === 400) {
                     if (response.duplicates) {
                         var popupAlert = $ionicPopup.alert({
@@ -296,7 +341,7 @@ angular.module('starter.controllers', [ ])
         };
     })
 
-    .controller('HomeCtrl', function($scope, $ionicHistory, $state) {
+    .controller('HomeCtrl', function ($scope, $ionicHistory, $state) {
         $scope.seek = function () {
             $ionicHistory.nextViewOptions({
                 disableAnimate: true,
@@ -325,34 +370,11 @@ angular.module('starter.controllers', [ ])
         };
     })
 
-    .controller('SeekCtrl', function($scope, $ionicPopup, $ionicHistory, $state, $http, $cordovaGeolocation, ConfigService) {
+    .controller('SeekCtrl', function ($scope, $ionicPopup, $ionicHistory, $state, $http, $cordovaGeolocation, ConfigService) {
         $scope.seekData = {
             homeDelivery: false,
             radius: 10,
             duration: 24
-        };
-
-        $scope.gpsFound = false;
-        $scope.spinning = false;
-
-        $scope.getGPS = function () {
-            $scope.spinning = true;
-            $cordovaGeolocation.getCurrentPosition({enableHighAccuracy: true})
-                .then(
-                function (position) {
-                    $scope.seekData.lat = position.coords.latitude;
-                    $scope.seekData.lon = position.coords.longitude;
-                    $scope.gpsFound = true;
-                    $scope.spinning = false;
-                },
-                function () {
-                    $scope.gpsFound = false;
-                    $scope.spinning = false;
-                    $ionicPopup.alert({
-                        title: 'Oops!',
-                        template: 'Qualcosa é andato storto! Assicurati che il GPS sia attivo e riprova.'
-                    });
-                });
         };
 
         $scope.fixRadiusInput = function () {
@@ -365,17 +387,17 @@ angular.module('starter.controllers', [ ])
                     title: 'Oops!',
                     template: 'Devi aver effettuato il login.'
                 });
-                popup.then(function() {
+                popup.then(function () {
                     $scope.login();
                 });
 
                 return;
             }
 
-            if (!$scope.gpsFound) {
+            if (!$scope.loggedUser.gpsValid) {
                 $ionicPopup.alert({
                     title: 'Oops!',
-                    template: 'Abbiamo bisogno della tua posizione corrente. Premi il tasto Ottieni posizione GPS e riprova.'
+                    template: 'Abbiamo bisogno della tua posizione corrente.'
                 });
 
                 return;
@@ -395,14 +417,14 @@ angular.module('starter.controllers', [ ])
                     description: $scope.seekData.description,
                     category: $scope.seekData.category,
                     radius: $scope.seekData.radius / 2,
-                    lat: $scope.seekData.lat,
-                    lon: $scope.seekData.lon,
+                    lat: $scope.loggedUser.lat,
+                    lon: $scope.loggedUser.lon,
                     duration: $scope.seekData.duration,
                     homeDelivery: ($scope.seekData.homeDelivery ? 1 : 0)
                 }
             };
 
-            $http(req).success(function(response){
+            $http(req).success(function (response) {
                 if (response.status === 200) {
                     $ionicPopup.alert({
                         title: 'Congratulazioni!',
@@ -421,13 +443,13 @@ angular.module('starter.controllers', [ ])
                         template: 'Qualcosa é andato storto! Riprova.'
                     });
                 }
-            }).error(function(response) {
+            }).error(function (response) {
                 if (response.status === 401) {
                     var popup = $ionicPopup.alert({
                         title: 'Oops!',
                         template: 'Devi aver effettuato il login.'
                     });
-                    popup.then(function() {
+                    popup.then(function () {
                         $scope.login();
                     });
                 } else {
@@ -460,18 +482,18 @@ angular.module('starter.controllers', [ ])
                 }
             };
 
-            $http(req).success(function(response){
+            $http(req).success(function (response) {
                 $scope.myadsData.myads = response;
                 $scope.myadsData.myads.forEach(function (ad) {
                     ad.duration = Math.floor((new Date(ad.date_expires) - Date.now()) / 3600000);
                 });
-            }).error(function(response) {
+            }).error(function (response) {
                 if (response.status === 401) {
                     var popup = $ionicPopup.alert({
                         title: 'Oops!',
                         template: 'Devi aver effettuato il login.'
                     });
-                    popup.then(function() {
+                    popup.then(function () {
                         $scope.login();
                     });
                 } else {
@@ -490,7 +512,7 @@ angular.module('starter.controllers', [ ])
         });
     })
 
-    .controller('MyAdCtrl', function ($scope, $stateParams, $http, $ionicPopup, ConfigService) {
+    .controller('MyAdCtrl', function ($scope, $stateParams, $http, $state, $ionicPopup, ConfigService) {
         $scope.myadData = {};
 
         var req = {
@@ -504,7 +526,7 @@ angular.module('starter.controllers', [ ])
             }
         };
 
-        $http(req).success(function(response){
+        $http(req).success(function (response) {
             $scope.myadData.myad = response;
             $scope.myadData.myad.duration = Math.floor((new Date($scope.myadData.myad.date_expires) - Date.now()) / 3600000);
             $scope.myadData.myad.homeDelivery = $scope.myadData.myad.homeDelivery ? 'si' : 'no';
@@ -513,13 +535,13 @@ angular.module('starter.controllers', [ ])
                     $scope.myadData.myad.category = cat.name;
                 }
             });
-        }).error(function(response) {
+        }).error(function (response) {
             if (response.status === 401) {
                 var popup = $ionicPopup.alert({
                     title: 'Oops!',
                     template: 'Devi aver effettuato il login.'
                 });
-                popup.then(function() {
+                popup.then(function () {
                     $scope.login();
                 });
             } else {
@@ -531,10 +553,57 @@ angular.module('starter.controllers', [ ])
                 });
             }
         });
+
+        $scope.gotoAdProps = function () {
+            $state.go('app.myadprops', {
+                data: $scope.myadData
+            });
+        };
     })
 
     .controller('MyAdPropsCtrl', function ($scope, $stateParams, $http, $ionicPopup, ConfigService) {
-        $scope.test = $stateParams.adid;
+        $scope.myad = $stateParams.data.myad;
+
+        $scope.getAdProps = function () {
+            var req = {
+                method: 'GET',
+                url: ConfigService.server + '/api/proposals/' + $scope.myad.id + '/' + $scope.loggedUser.lat + '/' + $scope.loggedUser.lon,
+                headers: {
+                    'Accept': 'application/json',
+                    'Content-Type': 'application/json',
+                    'x-key': $scope.loggedUser.userId,
+                    'x-access-token': $scope.loggedUser.token
+                }
+            };
+
+            $http(req).success(function (response) {
+                $scope.myadprops = response;
+                $scope.myadprops.forEach(function (prop) {
+                    prop.photo = ConfigService.server + '/' + prop.photo;
+                });
+            }).error(function (response) {
+                if (response.status === 401) {
+                    var popup = $ionicPopup.alert({
+                        title: 'Oops!',
+                        template: 'Devi aver effettuato il login.'
+                    });
+                    popup.then(function () {
+                        $scope.login();
+                    });
+                } else {
+                    console.log('error when loading ad props');
+
+                    $ionicPopup.alert({
+                        title: 'Oops!',
+                        template: 'Qualcosa é andato storto! Riprova.'
+                    });
+                }
+            });
+        };
+
+        $scope.$on('$ionicView.afterEnter', function () {
+            $scope.getAdProps();
+        });
     })
 
     .controller('MyPropsCtrl', function ($scope, $http, $ionicPopup, ConfigService) {
@@ -555,18 +624,18 @@ angular.module('starter.controllers', [ ])
                 }
             };
 
-            $http(req).success(function(response){
+            $http(req).success(function (response) {
                 $scope.mypropsData.myprops = response;
                 $scope.mypropsData.myprops.forEach(function (prop) {
                     prop.photo = ConfigService.server + '/' + prop.photo;
                 });
-            }).error(function(response) {
+            }).error(function (response) {
                 if (response.status === 401) {
                     var popup = $ionicPopup.alert({
                         title: 'Oops!',
                         template: 'Devi aver effettuato il login.'
                     });
-                    popup.then(function() {
+                    popup.then(function () {
                         $scope.login();
                     });
                 } else {
@@ -593,61 +662,19 @@ angular.module('starter.controllers', [ ])
             lon: null
         };
 
-        $scope.showGPSLoading = function() {
-            $ionicLoading.show({
-                template: '<ion-spinner class="centered"></ion-spinner><p>Localizzazione GPS in corso...</p>',
-                scope: $scope
-            });
-        };
-
-        $scope.hideGPSLoading = function(){
-            $ionicLoading.hide();
-        };
-
-        $scope.getProposalGPS = function () {
-            $cordovaGeolocation.getCurrentPosition({enableHighAccuracy: true})
-                .then(
-                function (position) {
-                    $scope.proposeData.lat = position.coords.latitude;
-                    $scope.proposeData.lon = position.coords.longitude;
-                    $scope.hideGPSLoading();
-                    $scope.getNearbyAds();
-                },
-                function () {
-                    $ionicPopup.alert({
-                        title: 'Oops!',
-                        template: 'Qualcosa é andato storto! Assicurati che il GPS sia attivo e riprova.'
-                    }).then(function () {
-                        $scope.hideGPSLoading();
-
-                        $ionicHistory.nextViewOptions({
-                            disableAnimate: true,
-                            disableBack: true
-                        });
-
-                        $state.go('app.home');
-                    });
-                });
-        };
-
         $scope.getNearbyAds = function () {
             var req = {
-                method: 'POST',
-                url: ConfigService.server + '/api/adsNearby' + ($scope.proposeData.categoryFilter != 0 ? '?category=' + $scope.proposeData.categoryFilter : ''),
+                method: 'GET',
+                url: ConfigService.server + '/api/adsNearby/' + $scope.loggedUser.lat + '/' + $scope.loggedUser.lon + '/' + (localStorage.getItem('adsLimit') || 25) + ($scope.proposeData.categoryFilter != 0 ? '?category=' + $scope.proposeData.categoryFilter : ''),
                 headers: {
                     'Accept': 'application/json',
                     'Content-Type': 'application/json',
                     'x-key': $scope.loggedUser.userId,
                     'x-access-token': $scope.loggedUser.token
-                },
-                data: {
-                    lat: $scope.proposeData.lat,
-                    lon: $scope.proposeData.lon,
-                    limit: localStorage.getItem('adsLimit') || 25
                 }
             };
 
-            $http(req).success(function(response){
+            $http(req).success(function (response) {
                 $scope.proposeData.ads = response;
                 $scope.proposeData.ads.forEach(function (ad) {
                     ad.duration = Math.floor((new Date(ad.date_expires) - Date.now()) / 3600000);
@@ -655,13 +682,13 @@ angular.module('starter.controllers', [ ])
                 $scope.proposeData.ads = $scope.proposeData.ads.filter(function (ad) {
                     return ad.duration >= 0 && ad.userid != $scope.loggedUser.userId;
                 });
-            }).error(function(response) {
+            }).error(function (response) {
                 if (response.status === 401) {
                     var popup = $ionicPopup.alert({
                         title: 'Oops!',
                         template: 'Devi aver effettuato il login.'
                     });
-                    popup.then(function() {
+                    popup.then(function () {
                         $scope.login();
                     });
                 } else {
@@ -676,8 +703,7 @@ angular.module('starter.controllers', [ ])
         };
 
         $scope.$on('$ionicView.afterEnter', function () {
-            $scope.showGPSLoading();
-            $scope.getProposalGPS();
+            $scope.getNearbyAds();
         });
     })
 
@@ -686,8 +712,8 @@ angular.module('starter.controllers', [ ])
             adId: $stateParams.adid,
             price: 0,
             notes: '',
-            lat: null,
-            lon: null
+            lat: $scope.loggedUser.lat,
+            lon: $scope.loggedUser.lon
         };
 
         $scope.photoSelected = false;
@@ -701,114 +727,88 @@ angular.module('starter.controllers', [ ])
                     title: 'Oops!',
                     template: 'Devi aver effettuato il login.'
                 });
-                popup.then(function() {
+                popup.then(function () {
                     $scope.login();
                 });
 
                 return;
             }
 
-            $ionicLoading.show({
-                template: '<ion-spinner class="centered"></ion-spinner><p>Localizzazione GPS in corso...</p>',
-                scope: $scope
-            });
 
-            $cordovaGeolocation.getCurrentPosition({enableHighAccuracy: true})
-                .then(function (position) {
-                    $scope.proposeToAdData.lat = position.coords.latitude;
-                    $scope.proposeToAdData.lon = position.coords.longitude;
-                    $ionicLoading.hide();
+            if ($scope.photoSelected) {
+                var options = new FileUploadOptions();
+                options.fileKey = "file";
+                options.fileName = $scope.photoURI.substr($scope.photoURI.lastIndexOf('/') + 1);
+                options.mimeType = "image/jpeg";
+                options.params = $scope.proposeToAdData;
+                options.headers = {
+                    'x-key': $scope.loggedUser.userId,
+                    'x-access-token': $scope.loggedUser.token
+                };
 
-                    if ($scope.photoSelected) {
-                        var options = new FileUploadOptions();
-                        options.fileKey = "file";
-                        options.fileName = $scope.photoURI.substr($scope.photoURI.lastIndexOf('/') + 1);
-                        options.mimeType = "image/jpeg";
-                        options.params = $scope.proposeToAdData;
-                        options.headers = {
-                            'x-key': $scope.loggedUser.userId,
-                            'x-access-token': $scope.loggedUser.token
-                        };
-
-                        var ft = new FileTransfer();
-                        ft.upload($scope.photoURI, encodeURI(ConfigService.server + '/api/proposals'), function () {
-                            $ionicPopup.alert({
-                                title: 'Successo!',
-                                template: 'Proposta pubblicata.'
-                            }).then(function () {
-                                $ionicHistory.nextViewOptions({
-                                    disableAnimate: true,
-                                    disableBack: true
-                                });
-
-                                $state.go('app.myprops');
-                            });
-                        }, function () {
-                            $ionicPopup.alert({
-                                title: 'Oops!',
-                                template: 'Qualcosa é andato storto.'
-                            });
-                        }, options);
-                    } else {
-                        var req = {
-                            method: 'POST',
-                            url: ConfigService.server + '/api/proposals',
-                            headers: {
-                                'Accept': 'application/json',
-                                'Content-Type': 'application/json',
-                                'x-key': $scope.loggedUser.userId,
-                                'x-access-token': $scope.loggedUser.token
-                            },
-                            data: $scope.proposeToAdData
-                        };
-
-                        $http(req).success(function(response){
-                            $ionicPopup.alert({
-                                title: 'Successo!',
-                                template: 'Proposta pubblicata.'
-                            }).then(function () {
-                                $ionicHistory.nextViewOptions({
-                                    disableAnimate: true,
-                                    disableBack: true
-                                });
-
-                                $state.go('app.myprops');
-                            });
-                        }).error(function(response) {
-                            if (response.status === 401) {
-                                var popup = $ionicPopup.alert({
-                                    title: 'Oops!',
-                                    template: 'Devi aver effettuato il login.'
-                                });
-                                popup.then(function() {
-                                    $scope.login();
-                                });
-                            } else {
-                                console.log('error when loading nearby ads');
-
-                                $ionicPopup.alert({
-                                    title: 'Oops!',
-                                    template: 'Qualcosa é andato storto! Riprova.'
-                                });
-                            }
-                        });
-                    }
-                },
-                function () {
+                var ft = new FileTransfer();
+                ft.upload($scope.photoURI, encodeURI(ConfigService.server + '/api/proposals'), function () {
                     $ionicPopup.alert({
-                        title: 'Oops!',
-                        template: 'Qualcosa é andato storto! Assicurati che il GPS sia attivo e riprova.'
+                        title: 'Successo!',
+                        template: 'Proposta pubblicata.'
                     }).then(function () {
-                        $ionicLoading.hide();
-
                         $ionicHistory.nextViewOptions({
                             disableAnimate: true,
                             disableBack: true
                         });
-                        $state.go('app.home');
-                    });
-                });
 
+                        $state.go('app.myprops');
+                    });
+                }, function () {
+                    $ionicPopup.alert({
+                        title: 'Oops!',
+                        template: 'Qualcosa é andato storto.'
+                    });
+                }, options);
+            } else {
+                var req = {
+                    method: 'POST',
+                    url: ConfigService.server + '/api/proposals',
+                    headers: {
+                        'Accept': 'application/json',
+                        'Content-Type': 'application/json',
+                        'x-key': $scope.loggedUser.userId,
+                        'x-access-token': $scope.loggedUser.token
+                    },
+                    data: $scope.proposeToAdData
+                };
+
+                $http(req).success(function (response) {
+                    $ionicPopup.alert({
+                        title: 'Successo!',
+                        template: 'Proposta pubblicata.'
+                    }).then(function () {
+                        $ionicHistory.nextViewOptions({
+                            disableAnimate: true,
+                            disableBack: true
+                        });
+
+                        $state.go('app.myprops');
+                    });
+                }).error(function (response) {
+                    if (response.status === 401) {
+                        var popup = $ionicPopup.alert({
+                            title: 'Oops!',
+                            template: 'Devi aver effettuato il login.'
+                        });
+                        popup.then(function () {
+                            $scope.login();
+                        });
+                    } else {
+                        console.log('error when loading nearby ads');
+
+                        $ionicPopup.alert({
+                            title: 'Oops!',
+                            template: 'Qualcosa é andato storto! Riprova.'
+                        });
+                    }
+                });
+            }
         };
 
         $scope.getPhoto = function () {
@@ -857,7 +857,7 @@ angular.module('starter.controllers', [ ])
             }
         };
 
-        $http(req).success(function(response){
+        $http(req).success(function (response) {
             $scope.proposeDetailData = response;
             $scope.proposeDetailData.duration = Math.floor((new Date($scope.proposeDetailData.date_expires) - Date.now()) / 3600000);
             $scope.proposeDetailData.homeDelivery = $scope.proposeDetailData.homeDelivery ? 'si' : 'no';
@@ -866,13 +866,13 @@ angular.module('starter.controllers', [ ])
                     $scope.proposeDetailData.category = cat.name;
                 }
             });
-        }).error(function(response) {
+        }).error(function (response) {
             if (response.status === 401) {
                 var popup = $ionicPopup.alert({
                     title: 'Oops!',
                     template: 'Devi aver effettuato il login.'
                 });
-                popup.then(function() {
+                popup.then(function () {
                     $scope.login();
                 });
             } else {
@@ -886,7 +886,7 @@ angular.module('starter.controllers', [ ])
         });
     })
 
-    .factory('ConfigService', function() {
+    .factory('ConfigService', function () {
         return {
             server: 'http://192.168.1.110:3000'
         }

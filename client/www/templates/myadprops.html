@@ -1,5 +1,14 @@
-<ion-view view-title="Proposte">
+<ion-view view-title="Proposte per {{myad.title}}">
     <ion-content>
-
+        <div class="list">
+            <a class="item item-thumbnail-left item-icon-right" href="#/app/myadpropsdetail/{{prop.id}}" ng-repeat="prop in myadprops">
+                <img ng-src="{{prop.photo}}">
+                <h2>{{prop.title}}</h2>
+                <p>{{prop.price}}€</p>
+                <p>Note: {{prop.notes}}</p>
+                <p>{{prop.dist | number}} km</p>
+                <i class="icon ion-chatbubble-working"></i>
+            </a>
+        </div>
     </ion-content>
 </ion-view>

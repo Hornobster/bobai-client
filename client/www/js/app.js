@@ -61,13 +61,14 @@ angular.module('starter', ['ionic', 'ngCordova', 'starter.controllers'])
             })
 
             .state('app.myadprops', {
-                url: "/myads/:adid/proposals",
+                url: "/myads/proposals",
                 views: {
                     'menuContent': {
                         templateUrl: "templates/myadprops.html",
                         controller: 'MyAdPropsCtrl'
                     }
-                }
+                },
+                params: {data: undefined}
             })
 
             .state('app.myprops', {
