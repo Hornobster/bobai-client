@@ -76,7 +76,7 @@ var ads = {
             queryParams = [lat, lon, req.query.category, limit];
         }
 
-        query += ' HAVING dist < radius ORDER BY date_created LIMIT ?';
+        query += ' HAVING dist < radius ORDER BY date_created DESC LIMIT ?';
 
         connection.query(query, queryParams, function(err, result) {
             if (err) {
