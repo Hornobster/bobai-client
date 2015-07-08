@@ -13,7 +13,8 @@
             <p class="item" ng-hide="myadsData.myads.length">Non hai pubblicato annunci.</p>
             <a class="item" href="#/app/myads/{{ad.id}}" ng-repeat="ad in myadsData.myads">
                 <h2>{{ad.title}}</h2>
-                <p>Scade tra {{ad.duration}} ore</p>
+                <p ng-show="ad.duration > 0">Scade tra {{ad.duration}} ore</p>
+                <p ng-hide="ad.duration > 0">Scaduto</p>
             </a>
         </div>
     </ion-content>
