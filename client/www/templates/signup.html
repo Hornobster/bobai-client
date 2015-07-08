@@ -3,8 +3,8 @@
         <form ng-submit="doSignup()" novalidate>
             <div class="list">
                 <label ng-class="{formError : duplicates.username}" class="item item-input item-floating-label">
-                    <span class="input-label">Username</span>
-                    <input type="text" placeholder="Username - 8 caratteri o piú" ng-model="signupData.username" required>
+                    <span class="input-label">Nome Utente</span>
+                    <input type="text" placeholder="Nome Utente - massimo 30 caratteri" ng-model="signupData.username" required>
                 </label>
                 <label ng-class="{formError : duplicates.email}" class="item item-input item-floating-label">
                     <span class="input-label">Email</span>
@@ -16,7 +16,7 @@
                 </label>
                 <label class="item item-input item-floating-label">
                     <span class="input-label">Password</span>
-                    <input type="password" placeholder="Password" ng-model="signupData.password" required>
+                    <input type="password" placeholder="Password - almeno 8 caratteri" ng-model="signupData.password" required>
                 </label>
                 <label class="item item-input item-floating-label">
                     <span class="input-label">Ripeti Password</span>

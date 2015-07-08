@@ -27,8 +27,8 @@ var registration = {
 
         // validation patterns
         var emailPat = /^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,4}$/;
-        var usernamePat = /^[A-Za-z0-9 _]{8,30}$/; // alphanumeric with space and underscore, min 8 max 30 chars
-        var passwordPat = /^[A-Za-z0-9!@#$&*]{8,50}$/; // alphanumeric with specials (!@#$&*), min 8 max 50 chars
+        var usernamePat = /^[A-Za-z0-9 _]{1,30}$/; // alphanumeric with space and underscore, max 30 chars
+        var passwordPat = /^[A-Za-z0-9!@#$&*]{8,}$/; // alphanumeric with specials (!@#$&*), min 8
 
         if (emailPat.test(email) && usernamePat.test(username) && passwordPat.test(password)) { // email, username and password are valid
             var hash = bcrypt.hashSync(password, 8);
