@@ -1,6 +1,7 @@
 <ion-view view-title="Proposte per {{myad.title}}">
     <ion-content>
         <div class="list">
+            <p class="item" ng-hide="myadprops.length">Nessuna proposta.</p>
             <a class="item item-thumbnail-left item-icon-right" href="#/app/myadpropsdetail/{{prop.id}}" ng-repeat="prop in myadprops">
                 <img ng-src="{{prop.photo}}">
                 <h2>{{prop.title}}</h2>

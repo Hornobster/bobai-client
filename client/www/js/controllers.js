@@ -104,7 +104,9 @@ angular.module('starter.controllers', [])
         $scope.logout = function () {
             var confirmPopup = $ionicPopup.confirm({
                 title: 'Logout',
-                template: 'Are you sure you want to logout?'
+                template: 'Sei sicuro di voler uscire?',
+                cancelText: 'No',
+                okText: 'Si'
             });
             confirmPopup.then(function (res) {
                 if (res) {
@@ -125,8 +127,7 @@ angular.module('starter.controllers', [])
                             $scope.loggedUser.loggedIn = false;
 
                             var alertPopup = $ionicPopup.alert({
-                                title: 'Success!',
-                                template: 'You have logged out.'
+                                title: 'Disconnesso!'
                             });
                             alertPopup.then(function () {
                                 $ionicHistory.nextViewOptions({

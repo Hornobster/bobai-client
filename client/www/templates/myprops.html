@@ -10,6 +10,7 @@
     </div>
     <ion-content class="has-subheader">
         <div class="list">
+            <p class="item" ng-hide="mypropsData.myprops.length">Non hai pubblicato proposte.</p>
             <a class="item item-thumbnail-left" href="#/app/myprops/{{prop.id}}" ng-repeat="prop in mypropsData.myprops">
                 <img ng-src="{{prop.photo}}">
                 <h2>{{prop.title}}</h2>
