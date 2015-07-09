@@ -74,6 +74,13 @@ angular.module('starter.controllers', [])
                     $scope.loggedUser.userId = response.user.id;
                     $scope.loggedUser.username = response.user.username;
 
+                    $ionicHistory.nextViewOptions({
+                        disableAnimate: true,
+                        disableBack: true
+                    });
+
+                    $state.go('app.home');
+
                     $scope.getCategories();
 
                     $scope.closeLogin();
@@ -204,9 +211,19 @@ angular.module('starter.controllers', [])
             });
         };
 
+        $scope.exit = function () {
+            ionic.Platform.exitApp();
+        };
+
+        $scope.isAndroid = function () {
+            return ionic.Platform.isAndroid();
+        };
+
         $scope.showGPSLoading = function () {
             $ionicLoading.show({
-                template: '<ion-spinner class="centered"></ion-spinner><p>Localizzazione GPS in corso...</p>',
+                template: '<ion-spinner class="centered"></ion-spinner>' +
+                '<p>Localizzazione GPS in corso...</p>' +
+                '<button ng-show="isAndroid()" class="button button-positive" ng-click="exit()">Annulla ed esci</button>',
                 scope: $scope
             });
         };
