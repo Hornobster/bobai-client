@@ -10,6 +10,7 @@
     </div>
     <ion-content class="has-subheader">
         <div class="list">
+            <p class="item" ng-hide="proposeData.ads.length">Non ci sono annunci nella tua zona.</p>
             <a class="item" href="#/app/propose/{{ad.id}}" ng-repeat="ad in proposeData.ads">
                 <h2>{{ad.title}}</h2>
                 <p>Scade tra {{ad.duration}} ore</p>

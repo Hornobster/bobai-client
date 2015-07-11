@@ -11,10 +11,6 @@ angular.module('starter.controllers', [])
             gpsValid: false
         };
 
-        if (localStorage.getItem('loggedIn') !== undefined) {
-            $scope.loggedUser.loggedIn = localStorage.getItem('loggedIn') === 'true';
-        }
-
         if (localStorage.getItem('userId') !== undefined) {
             $scope.loggedUser.userId = localStorage.getItem('userId');
         }
@@ -25,6 +21,10 @@ angular.module('starter.controllers', [])
 
         if (localStorage.getItem('token') !== undefined) {
             $scope.loggedUser.token = localStorage.getItem('token');
+        }
+
+        if (localStorage.getItem('loggedIn') !== undefined) {
+            $scope.loggedUser.loggedIn = localStorage.getItem('loggedIn') === 'true';
         }
 
         // Form data for the login modal
@@ -240,6 +240,13 @@ angular.module('starter.controllers', [])
                     $scope.loggedUser.lat = position.coords.latitude;
                     $scope.loggedUser.lon = position.coords.longitude;
                     $scope.hideGPSLoading();
+
+                    $ionicHistory.nextViewOptions({
+                        disableAnimate: true,
+                        disableBack: true
+                    });
+
+                    $state.go('app.home');
 
                     $scope.getCategories();
                 },
@@ -906,6 +913,7 @@ angular.module('starter.controllers', [])
 
     .factory('ConfigService', function () {
         return {
-            server: 'http://192.168.1.110:3000'
+            //server: 'http://192.168.1.110:3000'
+            server: 'https://bobai.herokuapp.com'
         }
     });
