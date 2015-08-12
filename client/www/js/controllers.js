@@ -651,9 +651,6 @@ angular.module('starter.controllers', [])
 
             $http(req).success(function (response) {
                 $scope.mypropsData.myprops = response;
-                $scope.mypropsData.myprops.forEach(function (prop) {
-                    prop.photo = ConfigService.server + '/' + prop.photo;
-                });
             }).error(function (response) {
                 if (response.status === 401) {
                     var popup = $ionicPopup.alert({
@@ -738,10 +735,13 @@ angular.module('starter.controllers', [])
             price: 0,
             notes: '',
             lat: $scope.loggedUser.lat,
-            lon: $scope.loggedUser.lon
+            lon: $scope.loggedUser.lon,
+            photoURL: 'https://s3.amazonaws.com/bobai-uploads/bobai.png'
         };
 
         $scope.photoSelected = false;
+        $scope.photoUploading = false;
+        $scope.photoUploaded = false;
         $scope.photoURI = '';
 
         $scope.doPropose = function () {
@@ -759,81 +759,126 @@ angular.module('starter.controllers', [])
                 return;
             }
 
-
-            if ($scope.photoSelected) {
-                var options = new FileUploadOptions();
-                options.fileKey = "file";
-                options.fileName = $scope.photoURI.substr($scope.photoURI.lastIndexOf('/') + 1);
-                options.mimeType = "image/jpeg";
-                options.params = $scope.proposeToAdData;
-                options.headers = {
+            var req = {
+                method: 'POST',
+                url: ConfigService.server + '/api/proposals',
+                headers: {
+                    'Accept': 'application/json',
+                    'Content-Type': 'application/json',
                     'x-key': $scope.loggedUser.userId,
                     'x-access-token': $scope.loggedUser.token
+                },
+                data: $scope.proposeToAdData
+            };
+
+            $http(req).success(function (response) {
+                $ionicPopup.alert({
+                    title: 'Successo!',
+                    template: 'Proposta pubblicata.'
+                }).then(function () {
+                    $ionicHistory.nextViewOptions({
+                        disableAnimate: true,
+                        disableBack: true
+                    });
+
+                    $state.go('app.myprops');
+                });
+            }).error(function (response) {
+                if (response.status === 401) {
+                    var popup = $ionicPopup.alert({
+                        title: 'Oops!',
+                        template: 'Devi aver effettuato il login.'
+                    });
+                    popup.then(function () {
+                        $scope.login();
+                    });
+                } else {
+                    console.log('error when loading nearby ads');
+
+                    $ionicPopup.alert({
+                        title: 'Oops!',
+                        template: 'Qualcosa é andato storto! Riprova.'
+                    });
+                }
+            });
+        };
+
+        $scope.getSignedRequest = function (callback) {
+            var req = {
+                method: 'GET',
+                url: ConfigService.server + '/api/signS3',
+                headers: {
+                    'Accept': 'application/json',
+                    'Content-Type': 'application/json',
+                    'x-key': $scope.loggedUser.userId,
+                    'x-access-token': $scope.loggedUser.token
+                }
+            };
+
+            $http(req).success(function (response) {
+                callback(response);
+            }).error(function (response) {
+                if (response.status === 401) {
+                    var popup = $ionicPopup.alert({
+                        title: 'Oops!',
+                        template: 'Devi aver effettuato il login.'
+                    });
+                    popup.then(function () {
+                        $scope.login();
+                    });
+
+                    callback(null);
+                } else {
+                    console.log('error could not receive signed request');
+
+                    $ionicPopup.alert({
+                        title: 'Oops!',
+                        template: 'Qualcosa é andato storto! Riprova.'
+                    });
+
+                    callback(null);
+                }
+            });
+        };
+
+        $scope.uploadPhoto = function () {
+            $scope.photoUploaded = false;
+            $scope.photoUploading = true;
+
+            $scope.getSignedRequest(function (signedRequest) {
+                if (!signedRequest)
+                    return;
+
+                var options = new FileUploadOptions();
+                options.chunkedMode = false;
+                options.httpMethod = 'PUT';
+                options.headers = {
+                    'Content-Type': 'image/jpeg',
+                    'X-Amz-Acl': 'public-read'
                 };
 
                 var ft = new FileTransfer();
-                ft.upload($scope.photoURI, encodeURI(ConfigService.server + '/api/proposals'), function () {
-                    $ionicPopup.alert({
-                        title: 'Successo!',
-                        template: 'Proposta pubblicata.'
-                    }).then(function () {
-                        $ionicHistory.nextViewOptions({
-                            disableAnimate: true,
-                            disableBack: true
-                        });
-
-                        $state.go('app.myprops');
+                ft.upload($scope.photoURI, signedRequest.signedUrl, function () {
+                    $scope.$apply(function () {
+                        $scope.photoUploading = false;
+                        $scope.photoUploaded = true;
+                        $scope.proposeToAdData.photoURL = signedRequest.imageUrl;
                     });
                 }, function () {
+                    $scope.$apply(function () {
+                        $scope.photoUploading = false;
+                        $scope.photoUploaded = false;
+                        $scope.proposeToAdData.photoURL = 'https://s3.amazonaws.com/bobai-uploads/bobai.png';
+                    });
+
+                    console.log('error when uploading photo');
+
                     $ionicPopup.alert({
                         title: 'Oops!',
-                        template: 'Qualcosa é andato storto.'
+                        template: 'Errore durante l\'invio della foto! Riprova.'
                     });
                 }, options);
-            } else {
-                var req = {
-                    method: 'POST',
-                    url: ConfigService.server + '/api/proposals',
-                    headers: {
-                        'Accept': 'application/json',
-                        'Content-Type': 'application/json',
-                        'x-key': $scope.loggedUser.userId,
-                        'x-access-token': $scope.loggedUser.token
-                    },
-                    data: $scope.proposeToAdData
-                };
-
-                $http(req).success(function (response) {
-                    $ionicPopup.alert({
-                        title: 'Successo!',
-                        template: 'Proposta pubblicata.'
-                    }).then(function () {
-                        $ionicHistory.nextViewOptions({
-                            disableAnimate: true,
-                            disableBack: true
-                        });
-
-                        $state.go('app.myprops');
-                    });
-                }).error(function (response) {
-                    if (response.status === 401) {
-                        var popup = $ionicPopup.alert({
-                            title: 'Oops!',
-                            template: 'Devi aver effettuato il login.'
-                        });
-                        popup.then(function () {
-                            $scope.login();
-                        });
-                    } else {
-                        console.log('error when loading nearby ads');
-
-                        $ionicPopup.alert({
-                            title: 'Oops!',
-                            template: 'Qualcosa é andato storto! Riprova.'
-                        });
-                    }
-                });
-            }
+            });
         };
 
         $scope.getPhoto = function () {
@@ -843,11 +888,15 @@ angular.module('starter.controllers', [])
                     $scope.$apply(function () {
                         $scope.photoURI = imageUri;
                         $scope.photoSelected = true;
+
+                        $scope.uploadPhoto();
                     });
                 },
                 function () {
                     $scope.$apply(function () {
                         $scope.photoSelected = false;
+                        $scope.photoUploaded = false;
+                        $scope.photoUploading = false;
                     });
                 },
                 {
@@ -914,6 +963,8 @@ angular.module('starter.controllers', [])
     .factory('ConfigService', function () {
         return {
             //server: 'http://192.168.1.110:3000'
-            server: 'https://bobai.herokuapp.com'
+            //server: 'http://192.168.0.5:3000'
+            server: 'http://localhost:3000'
+            //server: 'https://bobai.herokuapp.com'
         }
     });

@@ -5,6 +5,10 @@
                 <div ng-show="photoSelected" class="item item-image">
                     <img ng-src="{{photoURI}}">
                 </div>
+                <label ng-show="photoUploading" class="item centered">
+                    <ion-spinner></ion-spinner>
+                    <p>Invio foto in corso...</p>
+                </label>
                 <label class="item">
                     <button class="button button-block icon ion-camera" type="button" ng-click="getPhoto()"> Scatta foto</button>
                 </label>
@@ -17,7 +21,7 @@
                     <textarea placeholder="Note - max 250 caratteri" ng-model="proposeToAdData.notes" required></textarea>
                 </label>
                 <label class="item">
-                    <button class="button button-block button-positive" type="submit">Pubblica proposta</button>
+                    <button ng-disabled="photoSelected && !photoUploaded" class="button button-block button-positive" type="submit">Pubblica proposta</button>
                 </label>
             </div>
         </form>
