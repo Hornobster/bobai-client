@@ -18,7 +18,7 @@
                 </label>
                 <div class="item range range-positive">
                     <i class="icon ion-android-wifi"></i>
-                    <input ng-model="seekData.radius" ng-disabled="seekData.homeDelivery" type="range" name="range" min="5" max="100" value="1">
+                    <input ng-model="seekData.radius" ng-disabled="seekData.home_delivery" type="range" name="range" min="5" max="100" value="1">
                     <span>{{seekData.radius / 2 || 1}} km</span>
                 </div>
                 <div class="item range range-positive">
@@ -28,7 +28,7 @@
                 </div>
                 <div class="item item-checkbox">
                     <label class="checkbox">
-                        <input ng-model="seekData.homeDelivery" ng-change="fixRadiusInput()" type="checkbox">
+                        <input ng-model="seekData.home_delivery" ng-change="fixRadiusInput()" type="checkbox">
                     </label>
                     Consegna a domicilio
                 </div>

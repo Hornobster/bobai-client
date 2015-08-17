@@ -397,7 +397,7 @@ angular.module('starter.controllers', [])
 
     .controller('SeekCtrl', function ($scope, $ionicPopup, $ionicHistory, $state, $http, $cordovaGeolocation, ConfigService) {
         $scope.seekData = {
-            homeDelivery: false,
+            home_delivery: false,
             radius: 10,
             duration: 24
         };
@@ -445,7 +445,7 @@ angular.module('starter.controllers', [])
                     lat: $scope.loggedUser.lat,
                     lon: $scope.loggedUser.lon,
                     duration: $scope.seekData.duration,
-                    homeDelivery: ($scope.seekData.homeDelivery ? 1 : 0)
+                    home_delivery: ($scope.seekData.home_delivery ? 1 : 0)
                 }
             };
 
@@ -554,7 +554,7 @@ angular.module('starter.controllers', [])
         $http(req).success(function (response) {
             $scope.myadData.myad = response;
             $scope.myadData.myad.duration = Math.floor((new Date($scope.myadData.myad.date_expires) - Date.now()) / 3600000);
-            $scope.myadData.myad.homeDelivery = $scope.myadData.myad.homeDelivery ? 'si' : 'no';
+            $scope.myadData.myad.home_delivery = $scope.myadData.myad.home_delivery ? 'si' : 'no';
             $scope.categories.forEach(function (cat) {
                 if (cat.id === $scope.myadData.myad.category) {
                     $scope.myadData.myad.category = cat.name;
@@ -913,7 +913,7 @@ angular.module('starter.controllers', [])
             id: $stateParams.adid,
             title: '',
             description: '',
-            homeDelivery: 'no',
+            home_delivery: 'no',
             date_created: '',
             date_expires: '',
             duration: 0,
@@ -934,7 +934,7 @@ angular.module('starter.controllers', [])
         $http(req).success(function (response) {
             $scope.proposeDetailData = response;
             $scope.proposeDetailData.duration = Math.floor((new Date($scope.proposeDetailData.date_expires) - Date.now()) / 3600000);
-            $scope.proposeDetailData.homeDelivery = $scope.proposeDetailData.homeDelivery ? 'si' : 'no';
+            $scope.proposeDetailData.home_delivery = $scope.proposeDetailData.home_delivery ? 'si' : 'no';
             $scope.categories.forEach(function (cat) {
                 if (cat.id === $scope.proposeDetailData.category) {
                     $scope.proposeDetailData.category = cat.name;
