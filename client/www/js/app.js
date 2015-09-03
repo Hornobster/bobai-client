@@ -147,7 +147,21 @@ angular.module('starter', ['ionic', 'ngCordova', 'starter.controllers'])
                         templateUrl: "templates/settings.html"
                     }
                 }
+            })
+
+            .state('app.chat', {
+                url: "/chat",
+                views: {
+                    'menuContent': {
+                        templateUrl: "templates/chat.html",
+                        controller: 'ChatCtrl'
+                    }
+                },
+                params: {
+                    data: undefined
+                }
             });
+
         // if none of the above states are matched, use this as the fallback
         $urlRouterProvider.otherwise('/app/splash');
     });

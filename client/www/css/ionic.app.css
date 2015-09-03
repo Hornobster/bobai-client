@@ -7709,3 +7709,26 @@ a.button {
 
 .dark-head {
   text-decoration: none; }
+
+.listalignright {
+  text-align: right; }
+
+.chatinputtext {
+  width: 85%; }
+
+.chatitem {
+  padding: 10px; }
+
+.chatmessage {
+  padding: 0;
+  margin: 0;
+  font-weight: bold; }
+
+.item p.chatmessage {
+  white-space: normal; }
+
+.chatmessageinfo {
+  font-size: 60%;
+  font-style: italic;
+  padding: 0;
+  margin: 0; }

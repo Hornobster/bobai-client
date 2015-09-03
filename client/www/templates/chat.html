@@ -1,0 +1,17 @@
+<ion-view view-title="@{{chatData.receiver}}">
+    <ion-content class="has-footer">
+        <div class="list">
+            <li class="item" ng-hide="chatData.messages.length">Nessun messaggio.</li>
+            <li class="item chatitem" ng-class="{listalignright: message.senderid == loggedUser.userId}"
+                ng-repeat="message in chatData.messages track by $index | orderBy:'time_sent'">
+                <p class="chatmessage">{{message.text}}</p>
+                <p class="chatmessageinfo">{{message.time_sent | date : "h:mm a"}}</p>
+            </li>
+        </div>
+    </ion-content>
+    <div class="bar bar-footer">
+        <input class="chatinputtext" type="text" placeholder="Scrivi un messaggio..." ng-model="chatData.toSend"
+               ng-maxlength="500">
+        <button class="button button-icon ion-paper-airplane pull-right" ng-click="sendMessage()"></button>
+    </div>
+</ion-view>

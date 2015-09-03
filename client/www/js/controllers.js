@@ -586,7 +586,7 @@ angular.module('starter.controllers', [])
         };
     })
 
-    .controller('MyAdPropsCtrl', function ($scope, $stateParams, $http, $ionicPopup, ConfigService) {
+    .controller('MyAdPropsCtrl', function ($scope, $stateParams, $http, $ionicPopup, $state, ConfigService) {
         $scope.myad = $stateParams.data.myad;
 
         $scope.getAdProps = function () {
@@ -603,9 +603,6 @@ angular.module('starter.controllers', [])
 
             $http(req).success(function (response) {
                 $scope.myadprops = response;
-                $scope.myadprops.forEach(function (prop) {
-                    prop.photo = ConfigService.server + '/' + prop.photo;
-                });
             }).error(function (response) {
                 if (response.status === 401) {
                     var popup = $ionicPopup.alert({
@@ -626,12 +623,24 @@ angular.module('starter.controllers', [])
             });
         };
 
+        $scope.openChat = function (prop) {
+            var goParam = {
+                data: {
+                    proposalId: prop.id,
+                    adId: prop.adid,
+                    receiver: 'prop'
+                }
+            };
+
+            $state.go('app.chat', goParam);
+        };
+
         $scope.$on('$ionicView.afterEnter', function () {
             $scope.getAdProps();
         });
     })
 
-    .controller('MyPropsCtrl', function ($scope, $http, $ionicPopup, ConfigService) {
+    .controller('MyPropsCtrl', function ($scope, $http, $ionicPopup, $state, ConfigService) {
         $scope.mypropsData = {
             categoryFilter: 0,
             myprops: []
@@ -669,6 +678,18 @@ angular.module('starter.controllers', [])
                     });
                 }
             });
+        };
+
+        $scope.openChat = function (prop) {
+            var goParam = {
+                data: {
+                    proposalId: prop.id,
+                    adId: prop.adid,
+                    receiver: 'ad'
+                }
+            };
+
+            $state.go('app.chat', goParam);
         };
 
         $scope.$on('$ionicView.afterEnter', function () {
@@ -957,6 +978,173 @@ angular.module('starter.controllers', [])
                     template: 'Qualcosa é andato storto! Riprova.'
                 });
             }
+        });
+    })
+
+    .controller('ChatCtrl', function ($scope, $stateParams, $http, $ionicPopup, $interval, $ionicScrollDelegate, ConfigService) {
+        $scope.chatData = {
+            messages: [],
+            proposalId: $stateParams.data.proposalId,
+            adId: $stateParams.data.adId,
+            toSend: ''
+        };
+
+        $scope.glued = true;
+        $scope.updatePromise = null;
+
+        $scope.getAllMessages = function () {
+            var req = {
+                method: 'GET',
+                url: ConfigService.server + '/api/messages/' + $scope.chatData.proposalId,
+                headers: {
+                    'Accept': 'application/json',
+                    'Content-Type': 'application/json',
+                    'x-key': $scope.loggedUser.userId,
+                    'x-access-token': $scope.loggedUser.token
+                }
+            };
+
+            $http(req).success(function (response) {
+                $scope.chatData.messages = response;
+
+                $ionicScrollDelegate.scrollBottom(true);
+            }).error(function (response) {
+                if (response.status === 401) {
+                    var popup = $ionicPopup.alert({
+                        title: 'Oops!',
+                        template: 'Devi aver effettuato il login.'
+                    });
+                    popup.then(function () {
+                        $scope.login();
+                    });
+                } else {
+                    console.log('error when loading messages');
+
+                    $ionicPopup.alert({
+                        title: 'Oops!',
+                        template: 'Qualcosa é andato storto! Riprova.'
+                    });
+                }
+            });
+        };
+
+        $scope.getUnreadMessages = function () {
+            var req = {
+                method: 'GET',
+                url: ConfigService.server + '/api/messages/' + $scope.chatData.proposalId + '/unread',
+                headers: {
+                    'Accept': 'application/json',
+                    'Content-Type': 'application/json',
+                    'x-key': $scope.loggedUser.userId,
+                    'x-access-token': $scope.loggedUser.token
+                }
+            };
+
+            $http(req).success(function (response) {
+                response.forEach(function (elem) {
+                    $scope.chatData.messages.push(elem);
+                });
+                if (response.length > 0) {
+                    $ionicScrollDelegate.scrollBottom(true);
+                }
+            }).error(function () {
+                console.log('error when loading messages');
+            });
+        };
+
+        $scope.sendMessage = function () {
+            var req = {
+                method: 'POST',
+                url: ConfigService.server + '/api/messages/' + $scope.chatData.proposalId,
+                headers: {
+                    'Accept': 'application/json',
+                    'Content-Type': 'application/json',
+                    'x-key': $scope.loggedUser.userId,
+                    'x-access-token': $scope.loggedUser.token
+                },
+                data: {
+                    text: $scope.chatData.toSend
+                }
+            };
+
+            var tries = 0;
+            var retry5Send = function () {
+                if (tries < 5) {
+                    tries++;
+
+                    $http(req).success(function (response) {
+                        if (response.status === 200) {
+                            $scope.chatData.toSend = '';
+
+                            $scope.chatData.messages.push(response.message);
+                            $ionicScrollDelegate.scrollBottom(true);
+                        } else {
+                            retry5Send();
+                        }
+                    }).error(function (response) {
+                        if (response.status === 401) {
+                            var popup = $ionicPopup.alert({
+                                title: 'Oops!',
+                                template: 'Devi aver effettuato il login.'
+                            });
+                            popup.then(function () {
+                                $scope.login();
+                            });
+                        } else {
+                            console.error('error when sending message');
+
+                            retry5Send();
+                        }
+                    });
+                } else {
+                    $ionicPopup.alert({
+                        title: 'Oops!',
+                        template: 'Qualcosa é andato storto! Riprova.'
+                    });
+                }
+            };
+            retry5Send();
+        };
+
+        $scope.getReceiverUsername = function (next) {
+            var req = {
+                method: 'GET',
+                url: ConfigService.server + '/api/username/' + $stateParams.data.receiver + '/' + ($stateParams.data.receiver === 'ad' ? $scope.chatData.adId : $scope.chatData.proposalId),
+                headers: {
+                    'Accept': 'application/json',
+                    'Content-Type': 'application/json',
+                    'x-key': $scope.loggedUser.userId,
+                    'x-access-token': $scope.loggedUser.token
+                }
+            };
+
+            $http(req).success(function (response) {
+                $scope.chatData.receiver = response.username;
+
+                next();
+            }).error(function (response) {
+                if (response.status === 401) {
+                    var popup = $ionicPopup.alert({
+                        title: 'Oops!',
+                        template: 'Devi aver effettuato il login.'
+                    });
+                    popup.then(function () {
+                        $scope.login();
+                    });
+                } else {
+                    console.log('error when getting username');
+                }
+            });
+        };
+
+        $scope.$on('$ionicView.afterEnter', function () {
+            $scope.getReceiverUsername($scope.getAllMessages);
+
+            $scope.updatePromise = $interval($scope.getUnreadMessages, 5000);
+        });
+
+        $scope.$on('$ionicView.afterLeave', function () {
+            $interval.cancel($scope.updatePromise);
         });
     })
 
