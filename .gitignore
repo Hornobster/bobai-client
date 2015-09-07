@@ -17,3 +17,4 @@ client/plugins
 client/resources
 
 server/uploads
+*.keystore

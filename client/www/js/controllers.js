@@ -211,7 +211,7 @@ angular.module('starter.controllers', [])
             });
         };
 
-        $scope.registerGCM = function (registrationId) {
+        $scope.registerGCM = function (registrationId, os) {
             var req = {
                 method: 'POST',
                 url: ConfigService.server + '/api/messages/register',
@@ -222,7 +222,8 @@ angular.module('starter.controllers', [])
                     'x-access-token': $scope.loggedUser.token
                 },
                 data: {
-                    registrationId: registrationId
+                    registrationId: registrationId,
+                    os: os
                 }
             };
 
@@ -230,8 +231,8 @@ angular.module('starter.controllers', [])
             }).error(function (response) {
                 if (response.status === 401) {
                     setTimeout(function () {
-                        $scope.registerGCM();
-                    }, 1000)
+                        $scope.registerGCM(registrationId, os);
+                    }, 5000)
                 }
             });
         };
@@ -300,14 +301,21 @@ angular.module('starter.controllers', [])
                     "android": {
                         "senderID": "661406042371"
                     },
-                    "ios": {},
+                    "ios": {
+                        "senderID": "671958181262"
+                    },
                     "windows": {}
                 });
 
                 push.on('registration', function (data) {
                     console.log("registration event");
                     console.log(JSON.stringify(data));
-                    $scope.registerGCM(data.registrationId);
+                    if (ionic.Platform.isAndroid()) {
+                        $scope.registerGCM(data.registrationId, 'A');
+                    }
+                    if (ionic.Platform.isIOS()) {
+                        $scope.registerGCM(data.registrationId, 'I');
+                    }
                 });
 
                 push.on('notification', function (data) {
