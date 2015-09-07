@@ -1,12 +1,14 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <widget id="com.ionicframework.lothardeal831644" version="0.0.1" xmlns="http://www.w3.org/ns/widgets"
-        xmlns:cdv="http://cordova.apache.org/ns/1.0">
+        xmlns:cdv="http://cordova.apache.org/ns/1.0"
+        android-packageName="com.gobobai.bobai"
+        ios-CFBundleIdentifier="com.gobobai.bobai">
     <name>Bobai</name>
     <description>
-        An Ionic Framework and Cordova project.
+        A sharing economy application.
     </description>
-    <author email="hi@ionicframework" href="http://ionicframework.com/">
-        Ionic Framework Team
+    <author email="bobai.app@gmail.com" href="http://www.gobobai.com/">
+        Carlo Vespa, Elias Mahdavi
     </author>
     <content src="index.html"/>
     <access origin="*"/>

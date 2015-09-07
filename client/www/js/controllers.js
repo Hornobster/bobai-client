@@ -1,6 +1,6 @@
 angular.module('starter.controllers', [])
 
-    .controller('AppCtrl', function ($scope, $ionicModal, $ionicPopup, $http, $ionicHistory, $state, $cordovaGeolocation, $ionicLoading, ConfigService) {
+    .controller('AppCtrl', function ($ionicPlatform, $scope, $ionicModal, $ionicPopup, $http, $ionicHistory, $state, $cordovaGeolocation, $ionicLoading, ConfigService) {
         $scope.loggedUser = {
             loggedIn: false,
             userId: 0,
@@ -211,6 +211,31 @@ angular.module('starter.controllers', [])
             });
         };
 
+        $scope.registerGCM = function (registrationId) {
+            var req = {
+                method: 'POST',
+                url: ConfigService.server + '/api/messages/register',
+                headers: {
+                    'Accept': 'application/json',
+                    'Content-Type': 'application/json',
+                    'x-key': $scope.loggedUser.userId,
+                    'x-access-token': $scope.loggedUser.token
+                },
+                data: {
+                    registrationId: registrationId
+                }
+            };
+
+            $http(req).success(function (response) {
+            }).error(function (response) {
+                if (response.status === 401) {
+                    setTimeout(function () {
+                        $scope.registerGCM();
+                    }, 1000)
+                }
+            });
+        };
+
         $scope.exit = function () {
             ionic.Platform.exitApp();
         };
@@ -268,6 +293,35 @@ angular.module('starter.controllers', [])
                     });
                 });
         };
+
+        $ionicPlatform.ready(function () {
+            try {
+                var push = PushNotification.init({
+                    "android": {
+                        "senderID": "661406042371"
+                    },
+                    "ios": {},
+                    "windows": {}
+                });
+
+                push.on('registration', function (data) {
+                    console.log("registration event");
+                    console.log(JSON.stringify(data));
+                    $scope.registerGCM(data.registrationId);
+                });
+
+                push.on('notification', function (data) {
+                    console.log("notification event");
+                    console.log(JSON.stringify(data));
+                });
+
+                push.on('error', function (e) {
+                    console.log("push error");
+                });
+            } catch (e) {
+
+            }
+        });
 
         $scope.showGPSLoading();
         $scope.getGPS();
@@ -986,7 +1040,8 @@ angular.module('starter.controllers', [])
             messages: [],
             proposalId: $stateParams.data.proposalId,
             adId: $stateParams.data.adId,
-            toSend: ''
+            toSend: '',
+            receiverId: ''
         };
 
         $scope.glued = true;
@@ -1063,7 +1118,9 @@ angular.module('starter.controllers', [])
                     'x-access-token': $scope.loggedUser.token
                 },
                 data: {
-                    text: $scope.chatData.toSend
+                    text: $scope.chatData.toSend,
+                    adId: $scope.chatData.adId,
+                    receiverId: $scope.chatData.receiverId
                 }
             };
 
@@ -1120,6 +1177,7 @@ angular.module('starter.controllers', [])
 
             $http(req).success(function (response) {
                 $scope.chatData.receiver = response.username;
+                $scope.chatData.receiverId = response.id;
 
                 next();
             }).error(function (response) {
